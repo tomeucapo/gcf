@@ -1,13 +1,11 @@
 <?php
   /****************************************************************************************
     clienttime.php
-    Classe per gestionar la comunicació amb les terminals que empra la classe clientTime.
+    Classe per gestionar la comunicaciÃ³ amb les terminals que empra la classe clientTime.
 
     Created......: 19/04/2007
     Last modified: 06/10/2012
-    Author.......: Tomeu Capó Capó
-
-    Alcúdia Marítima S.A. 2002/12 (C)
+    Author.......: Tomeu CapÃ³ CapÃ³
   *****************************************************************************************/
 
 class getConfigException extends Exception{};
@@ -59,7 +57,7 @@ class terminal
       }
 
     /**
-     * Mètode que inicialitza la connexió al terminal
+     * Mï¿½tode que inicialitza la connexiï¿½ al terminal
      */
       public function connect()
       {
@@ -93,7 +91,7 @@ class terminal
       }
 
     /**
-     * Mètode per llegir la data/hora del terminal
+     * Mï¿½tode per llegir la data/hora del terminal
      * @return string Hora i data separada amb un ";"
      */
       public function getTime()
@@ -110,7 +108,7 @@ class terminal
       }
 
      /**
-      * Mètode per ajustar la data/hora del terminal
+      * Mï¿½tode per ajustar la data/hora del terminal
       * @param $data
       * @param $hora
       * @return bool
@@ -124,7 +122,7 @@ class terminal
       }
 
     /**
-     * Mètode per determinar l'estat del terminal
+     * Mï¿½tode per determinar l'estat del terminal
      * @return array
      */
       public function getStatus()
@@ -139,7 +137,7 @@ class terminal
       }
 
     /**
-     * Mètode per determinar la configuració del terminal
+     * Mï¿½tode per determinar la configuraciï¿½ del terminal
      * @throws getConfigException
      */
       public function getConfig()
@@ -156,7 +154,7 @@ class terminal
                return $res;
       }
 
-      // Mètode per configurar el terminal
+      // Mï¿½tode per configurar el terminal
 
       public function setConfig($l_config)
       {
@@ -165,7 +163,7 @@ class terminal
                return false;
       }
 
-      // Mètode que ens llegeix la informació general del terminal
+      // Mï¿½tode que ens llegeix la informaciï¿½ general del terminal
 
       public function systemInfo()
       {
@@ -182,7 +180,7 @@ class terminal
                return $res;
       }
 
-      // Mètode que carrega una llista de incidències a la terminal
+      // Mï¿½tode que carrega una llista de incidï¿½ncies a la terminal
 
       public function sendIncidences($l_incidencies)
       {
@@ -209,7 +207,7 @@ class terminal
                return $status;
       }
 
-      // Mètode que borra totes les incidències de la terminal
+      // Mï¿½tode que borra totes les incidï¿½ncies de la terminal
 
       public function deleteIncidences()
       {
@@ -218,7 +216,7 @@ class terminal
                return false;
       }
 
-      // Mètode per descarregar els marcatges del terminal
+      // Mï¿½tode per descarregar els marcatges del terminal
 
       public function getTransactions($mode="all")
       {
@@ -234,7 +232,7 @@ class terminal
                return false;
       }
 
-      // Mètode per borrar els marcatges del terminal
+      // Mï¿½tode per borrar els marcatges del terminal
 
       public function deleteTransactions()
       {
@@ -243,7 +241,7 @@ class terminal
                return($this->clientTime->sendCommand("TARGET", "deletetransactions")>=0);
       }
 
-      // Mètode que permet activar/desactivar l'enmagatzemament dels marcatges dins el terminal
+      // Mï¿½tode que permet activar/desactivar l'enmagatzemament dels marcatges dins el terminal
 
       public function setTransStorage($active)
       {
@@ -255,7 +253,7 @@ class terminal
       }
 
       ///////////////////////////////////////////////////////////////////////////////////////////////////
-      // Metodes per a la gestió de les empremptes
+      // Metodes per a la gestiï¿½ de les empremptes
 
     /**
      * Obte un conjunt d'empremtes d'un terminal
@@ -292,7 +290,7 @@ class terminal
       }
 
     /**
-     * Mètode que carrega una llista d'usuaris a la terminal
+     * Mï¿½tode que carrega una llista d'usuaris a la terminal
      * @param array $l_fingers
      * @return bool
      */
@@ -371,9 +369,9 @@ class terminal
       }
 
       ///////////////////////////////////////////////////////////////////////////////////////////////////
-      // Metodes per a la gestió de les comptes d'usuari 
+      // Metodes per a la gestiï¿½ de les comptes d'usuari 
 
-      // Mètode que carrega una llista d'usuaris a la terminal
+      // Mï¿½tode que carrega una llista d'usuaris a la terminal
 
       public function createUsers($l_users)
       {
@@ -433,7 +431,7 @@ class terminal
                return $retval;
       }
 
-      // Mètode que borra una llista d'usuaris a la terminal
+      // Mï¿½tode que borra una llista d'usuaris a la terminal
 
       public function deleteUsers($l_users)
       {
@@ -459,7 +457,7 @@ class terminal
                return $retval;
       }
 
-      // Mètode per borrar tots els usuaris d'un terminal
+      // Mï¿½tode per borrar tots els usuaris d'un terminal
 
       public function deleteAllUsers()
       {
@@ -468,7 +466,7 @@ class terminal
                return($this->clientTime->sendCommand("TARGET", "deleteallusers")>=0);
       }
 
-      // Mètode per a configurar els permisos d'un usuari creat amb createUser
+      // Mï¿½tode per a configurar els permisos d'un usuari creat amb createUser
 
       public function setUsersFunctionsAndPermissions($l_functions)
       {
@@ -499,7 +497,7 @@ class terminal
       ///////////////////////////////////////////////////////////////////////////////////////////////////
       // Metodes pels missatges de pantalla
 
-      // Mètode que permet activar/desactivar la visualitzacio del nom del usuari per pantalla
+      // Mï¿½tode que permet activar/desactivar la visualitzacio del nom del usuari per pantalla
 
       public function setUserNameDisplaying($active)
       {
