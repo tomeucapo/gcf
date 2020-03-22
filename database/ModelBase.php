@@ -2,22 +2,23 @@
 
 namespace gcf\database;
 
-use Record;
-
-abstract class ModelBase implements \ModelInterface
+abstract class ModelBase extends \taulaBD implements ModelInterface
 {
     /**
-     * @var Record
+     * @var \Record
      */
     protected $record;
 
+    /**
+     * ModelBase constructor.
+     */
     public function __construct()
     {
-        $this->record = new Record([],[]);
+        $this->record = new \Record([],[]);
     }
 
-    abstract public function Insert(Record $newRecord);
-    abstract public function Update($id, Record $newRecord);
+    abstract public function Get($id) : \Record;
+    abstract public function Insert(\Record $newRecord);
+    abstract public function Update($id, \Record $newRecord);
     abstract public function Delete($id);
-    abstract public function NextId();
 }

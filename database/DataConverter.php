@@ -47,7 +47,7 @@ class DataConverter implements ConverterType
             if ($node->nodeName==='#text')
                 continue;
 
-	    $nodeArray[strtoupper($node->nodeName)] = $node->nodeValue;
+	        $nodeArray[strtoupper($node->nodeName)] = $node->nodeValue;
 
             //$nodeArray[strtoupper($node->nodeName)] = ($recodifica) ?
             //    iconv("UTF-8", "ISO-8859-15", $node->nodeValue) : $node->nodeValue;

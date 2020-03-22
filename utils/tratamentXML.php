@@ -1,131 +1,87 @@
 <?php
-    /**********************************************************************************
-       Funci�feta gr�ies a la necessitat de configurar el modul de diversos.php
-	   de manera din�ica sense tocar el codi.
-	   Ens permet configurar les taules que podr�mantenir aquest modul aix�com els
-	   camps de cada taula. Tot aix�a travers d'un fitxer XML.
+/**
+ * tratamentXML.php
+ * Llibreria antiga per carregar configuracions XML diverses. Aquesta llibreria esta en fase de extinció.
+ */
 
-       <?xml version="1.0" encoding="ISO-8859-1"?>
-       <taules>
-            <taula id="categoria" titol="Categoria" order_by="descripcio">
-			      <camp id="codi">
-                       <titol>Codi</titol>
-                       <mida>4</mida>
-                       <align>center</align>
-                       <str>'</str>
-                       <c_html>C_CODI</c_html>
-                  </camp>
-				  ...
-		    </taula>
-			...
-	   </taules>
-	  
-	***********************************************************************************/
-
-    if (version_compare(PHP_VERSION,'5','>='))
-       require_once('domxml-php4-to-php5.php');
-
-    function ConfigTaulesXML($nom_fitxerXML)  
-	{
-  		     $xml_doc = domxml_open_file($nom_fitxerXML) or die("No puc obrir el fitxer XML $nom_fitxerXML");
-
-             $root = $xml_doc->document_element();
-             $taules = $root->children();	
-             $meu_camps = array();
-   
-             while($taula = array_shift($taules)) {
-                   if($taula->tagname != "taula") 	  
-                     continue;
-
-		           $nom_taula = $taula->get_attribute("id");
-		           $titol = $taula->get_attribute("titol");
-	               $order = $taula->get_attribute("order_by");
-		   
-                   $camps = $taula->children();
-                   $eleCamp = array();
-		           while($camp = array_shift($camps)) 
-				   {
-		                 if($camp->tagname == "camp") {
-				            $nom_camp = $camp->get_attribute("id");
-				            $childnodes = $camp->child_nodes();
-
-                            $nodeArray = array();
-
-  			                foreach ($childnodes as $value) {
-  		                            if ($value->node_type() != XML_TEXT_NODE)
-				                       $nodeArray[$value->tagname] = $value->get_content();
-
-                            }
-
-                            $eleCamp[$nom_camp] = $nodeArray;
-		                 }	   
-		           }
-
-           		   $meu_camps[$nom_taula] = array ("titol"    => $titol,
-		                                           "camps"    => $eleCamp,
-								                   "order_by" => $order); 
-             }
-             return($meu_camps);
-	}
-	
+/**
+ * Carrega configuracions de llistats de XML a PHP
+ * @param $nom_fitxerXML
+ * @return array
+ * @throws Exception
+ */
     function ConfigLlistatsXML($nom_fitxerXML)  
 	{
-  		     $xml_doc = domxml_open_file($nom_fitxerXML) or die("No puc obrir el fitxer XML $nom_fitxerXML");
+	         if (!file_exists($nom_fitxerXML))
+	             throw new Exception("No puc trobar el fitxer XML $nom_fitxerXML");
 
-             $root = $xml_doc->document_element();
-             $taules = $root->children();	
-             $meu_camps = array();
-   
-             while($taula = array_shift($taules)) {
-                   if($taula->tagname == "llistat") {		  
-		              $nom_taula = $taula->get_attribute("id");
-		              $titol = $taula->get_attribute("titol");
-		   
-                      $camps = $taula->children();
-                      $eleCamp = array();
+  		     $xmlDoc = new \DOMDocument();
+  		     if (!$xmlDoc->load($nom_fitxerXML))
+  		         throw new Exception("Error obrint el fitxer XML $nom_fitxerXML");
 
-		              while($camp = array_shift($camps)) {
-		                    if($camp->tagname == "camp") {
-				               $nom_camp = $camp->get_attribute("id");
-				               $childnodes = $camp->child_nodes();
+  		     $root = $xmlDoc->documentElement;
+             $meu_camps = [];
 
-  			                   foreach ($childnodes as $value) {
-  		                               if ($value->node_type() != XML_TEXT_NODE)
-					                      $nodeArray[$value->tagname] = $value->get_content();
+             foreach($root->childNodes as $taula)
+             {
+                   if($taula->nodeName == "llistat")
+                   {
+		              $nom_taula = $taula->getAttribute("id");
+		              $titol = $taula->getAttribute("titol");
 
+                      $eleCamp = [];
+                      foreach($taula->childNodes as $camp)
+                      {
+		                    if($camp->nodeName === "camp")
+		                    {
+				               $nom_camp = $camp->getAttribute("id");
+				               $nodeArray = [];
+  			                   foreach ($camp->childNodes as $value)
+  			                   {
+  		                               if ($value->nodeName !== "#text")
+					                      $nodeArray[$value->nodeName] = $value->nodeValue;
                                }
-
                                $eleCamp[$nom_camp] = $nodeArray;
 		                    }	   
 		              }
 
-           		      $meu_camps[$nom_taula] = array ("titol"    => $titol,
-		                                              "camps"    => $eleCamp); 
+           		      $meu_camps[$nom_taula] = ["titol"    => $titol,
+                                                "camps"    => $eleCamp];
                    }
 		
              }
              return($meu_camps);
 	}
 
-    function ConfigPipellesXML($nom_fitxerXML)  
+/**
+ * Carrega configuracion de pipelles a una estructura PHP
+ * @param $nom_fitxerXML
+ * @param $var
+ * @return array
+ * @throws Exception
+ */
+    function ConfigPipellesXML($nom_fitxerXML)
 	{
-  		     $xml_doc = domxml_open_file($nom_fitxerXML) or die("No puc obrir el fitxer XML $nom_fitxerXML");
+	        if (!file_exists($nom_fitxerXML))
+                throw new Exception("No puc trobar el fitxer XML $nom_fitxerXML");
 
-             $root = $xml_doc->document_element();
-             $pipelles = $root->children();	
-             $meu_camps = array();
-   
-             while($taula = array_shift($pipelles)) 
+            $xmlDoc = new \DOMDocument();
+            if (!$xmlDoc->load($nom_fitxerXML))
+                throw new Exception("Error obrint el fitxer XML $nom_fitxerXML");
+
+             $root = $xmlDoc->documentElement;
+             $meu_camps = [];
+
+             foreach($root->childNodes as $pipelles)
              {
-                   if($taula->tagname == "pipella") 
+                   if($pipelles->nodeName == "pipella")
                    {		  
-		              $nom_pipella = $taula->get_attribute("id");
-                      $camps = $taula->children();
-
-                      foreach ($camps as $value) 
+		              $nom_pipella = $pipelles->getAttribute("id");
+		              $nodeArray = [];
+                      foreach ($pipelles->childNodes as $value)
   			          {
-  		                       if ($value->node_type() != XML_TEXT_NODE)
-					               $nodeArray[$value->tagname] = $value->get_content();
+  		                       if ($value->nodeName !== "#text")
+					               $nodeArray[$value->nodeName] = $value->nodeValue;
                       }
 
                       $meu_camps[$nom_pipella] = $nodeArray; 
@@ -134,12 +90,13 @@
              return($meu_camps);
 	}
 
-    /*********************************************************************************
-      Funci� utilitzada per passar molts de par�metres a funcions AJAX. De Javascript
-      a PHP. Ens tracta un XML amb els par�metres i ens torna un array amb els
-      parametres i els seus valors.
-     *********************************************************************************/
-
+/**
+ *  Funci� utilitzada per passar molts de par�metres a funcions AJAX. De Javascript
+ *  a PHP. Ens tracta un XML amb els par�metres i ens torna un array amb els
+ *  parametres i els seus valors.
+ * @param $dades_xml
+ * @return array
+ */
     function tracta_xml($dades_xml) 
     {
              $recodifica = (mb_detect_encoding($dades_xml) == 'UTF-8');
@@ -163,9 +120,18 @@
              return $nodeArray;
     }
 
-    // A partir dels camps tornats de la funcio tracta_xml generam la sentencia
-    // SQL de la BD.
-
+/**
+ * A partir dels camps tornats de la funcio tracta_xml generam la sentencia
+ * SQL de la BD.
+ * @param array $camps
+ * @param $tipus
+ * @param $taula
+ * @param string $camp_clau
+ * @param string $valor_codi
+ * @param string $cond
+ * @param bool $swapDate
+ * @return string
+ */
     function MontaSQL(array $camps, $tipus, $taula, $camp_clau='', $valor_codi='', $cond='', $swapDate=true)
     {
                 $tipus = strtoupper($tipus);

@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * DatabaseConnector class
  * User: tomeu
  * Date: 4/5/2018
  * Time: 11:38 AM
@@ -23,9 +23,13 @@ class DatabaseConnector
     public $drv;
 
     private $cadConn, $user, $passwd, $myRole, $className, $service, $mode;
+    /**
+     * @var bool
+     */
+    private $autoFlushCache;
 
     /**
-     * base_dades constructor.
+     * DatabaseConnector constructor.
      * @param $cadConn
      * @param $user
      * @param $passwd
@@ -40,10 +44,7 @@ class DatabaseConnector
             throw new errorDriverDB("No s'ha especificat el driver de base de dades a instanciar!");
 
         $this->drv = strtolower($drv);
-        $fileConn = "drivers/{$this->drv}/connector.php";
-        $this->className = "baseDades".$this->drv;
-        if(!class_exists($this->className))
-            @include_once $fileConn;
+        $this->className = "gcf\\database\\drivers\\{$this->drv}\\connector";
 
         if(!class_exists($this->className))
             throw new errorDriverDB("Hi ha problemes per instanciar la classe del driver de BBDD {$this->className}");
@@ -56,8 +57,6 @@ class DatabaseConnector
             throw new errorDriverDB("Mode de connexio incorrecte, nomes pot esser P o N");
 
         $this->mode = $mode;
-
-        //$this->cache = null;
         $this->autoFlushCache = false;
 
         $this->connecta();
@@ -80,12 +79,7 @@ class DatabaseConnector
         if ($this->service)
             return $this->service;
 
-        $fileConn = "drivers/{$this->drv}/service.php";
-        $className = "dataBaseService".$this->drv;
-
-        if(!class_exists($className))
-            include_once $fileConn;
-
+        $className = "gcf\\database\\drivers\\{$this->drv}\\service";
         if(!class_exists($className))
             throw new errorDriverDB("Hi ha problemes per instanciar la classe del driver de servei $className");
 

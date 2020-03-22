@@ -76,6 +76,7 @@ class filtreTaulaBD
                 if (count($this->fields)>0) 
                     $fieldsStr = implode(",",$this->fields);
 
+                $where = "";
                 if ($id) 
                     $where .=" ".$this->taula->condPrimaryKey($id);
 

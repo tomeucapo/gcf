@@ -41,11 +41,7 @@ class SQLQuery
      */
     public function __construct(DatabaseConnector $db, cachePlugin $cache=null, $autoFlush=false)
     {
-        $fileConn = "drivers/{$db->drv}/querySql.php";
-        $className = "querySql".$db->drv;
-        if (!class_exists($className))
-            @include_once $fileConn;
-
+        $className = "gcf\\database\\drivers\\{$db->drv}\\querySql";
         $this->consulta = new $className($db->dataBase);
 
         if (!empty($cache))
@@ -59,9 +55,10 @@ class SQLQuery
     private function extractFieldTypes()
     {
         $rowTypes = [];
-        for ($i = 0; $i < count($this->consulta->row); $i++) {
+        for ($i = 0; $i < count($this->consulta->row); $i++)
+        {
             $rowTypes[] = ["TYPE" => $this->consulta->GetFieldType($i),
-                "NAME" => $this->consulta->GetFieldName($i)];
+                        "NAME" => $this->consulta->GetFieldName($i)];
         }
         return $rowTypes;
     }

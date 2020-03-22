@@ -95,7 +95,7 @@ abstract class taulaBD
      * @param string $clientType Client Type of this datamapper (PHP or JSCRIPT)
      */
 
-    public function __construct(base_dades $db, $nomTaula, $pk, $tipusPK, $clientType = "PHP")
+    public function __construct(base_dades $db, string $nomTaula, $pk, $tipusPK, $clientType = "PHP")
     {
         $this->nomTaula = $nomTaula;
         $this->db = $db;
@@ -188,7 +188,7 @@ abstract class taulaBD
      * @return string SQL Condition for a PK
      * @throws noPrimaryKey
      */
-    private function condPrimaryKey($ids)
+    public function condPrimaryKey($ids)
     {
         $cond = "";
         $i = 0;

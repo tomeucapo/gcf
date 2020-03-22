@@ -7,6 +7,8 @@ include "ReportHeaders.php";
 include "ReportColumn.php";
 include "web/ws/wsBase.php";
 
+use gcf\cache\cachePlugin;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
@@ -48,7 +50,7 @@ abstract class DataReportBase implements DataReport
         private $footerText;
 
     /**
-     * @var \cachePlugin
+     * @var cachePlugin
      */
         private $cache;
 
@@ -79,7 +81,7 @@ abstract class DataReportBase implements DataReport
          */
         private $pageSize;
 
-        public function __construct(\base_dades $db, $name, \cachePlugin $cache=null, $type = self::JSON_OUT)
+        public function __construct(\base_dades $db, $name, cachePlugin $cache=null, $type = self::JSON_OUT)
         {
                $this->title = "";
                $this->name = $name;
@@ -172,7 +174,7 @@ abstract class DataReportBase implements DataReport
 
     /**
      * @return Spreadsheet
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
         private function XSLEncode()
         {
@@ -263,8 +265,7 @@ abstract class DataReportBase implements DataReport
                            {
                                   // TODO: Review this str_replace, is dirty trick!
 
-				  $sheet->getStyleByColumnAndRow($col, $row)->applyFromArray(self::$cellStylesDetails);
-                                  //$sheet->getStyleByColumnAndRow($col, $row)->applyFromArray($cellStylesHeaders);
+                                  $sheet->getStyleByColumnAndRow($col, $row)->applyFromArray(self::$cellStylesDetails);
                                   if ($colTypes[$col-1] === ReportColumn::NUMBER_FORMAT)
                                   {
                                       $sheet->getStyleByColumnAndRow($col, $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
@@ -315,7 +316,7 @@ abstract class DataReportBase implements DataReport
 
     /**
      * @throws \JSONEncodingError
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
     public function GetData()
         {

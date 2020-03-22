@@ -95,31 +95,17 @@
 			 return camp_de_taula($db,"",$C_NOM_CAMP,$C_DEPART,$query_dep,"dep.codi, dep.descripcio",false,"dep.descripcio");
 	}
 
-    function ObtenirCodiEmpresa($db, $db_presup, $NIF_EMPRESA) 
-    {
-                $codi_empresa ="";
-
-                $cons_emp = new consulta_sql($db_presup);
-                $query="select codi from public.\"empresa\" where \"nif\"='$NIF_EMPRESA'";
-                $cons_emp->fer_consulta($query);
-                 
-                $cons_emp1 = new consulta_sql($db);
-                $query="select exportar_pressuposts from empresa where NIF='$NIF_EMPRESA' and exportar_pressuposts='*'";  
-                $cons_emp1->fer_consulta($query);
-
-                if(!$cons_emp->Eof() && !$cons_emp1->Eof()) 
-                   $codi_empresa = $cons_emp->row[0];
-
-                $cons_emp->tanca_consulta();
-                return $codi_empresa;
-    }
-
-    /********************************************************************************
-       Funció per extreure una llista resum d'anys d'una taula.
-       Donat una taula i el seu camp data, ens torna una llista amb tots els anys
-       existents dins la taula.
-     ********************************************************************************/
-
+/**
+ * Funció per extreure una llista resum d'anys d'una taula.
+ * Donat una taula i el seu camp data, ens torna una llista amb tots els anys
+ * existents dins la taula.
+ * @param $conn_db
+ * @param $taula
+ * @param $camp_data
+ * @param $where
+ * @return array
+ * @throws errorQuerySQL
+ */
     function ExtreuAnys($conn_db, $taula, $camp_data, $where)
     {
          $llista_anys = array();
@@ -146,76 +132,6 @@
          return $llista_anys;
      }
 
-  /****************************************************************************
-   **    Funcio que retorna les connexions a les bases de dades externes     **
-   ****************************************************************************/
-
-   function BaseDadesExternes($conn_db, $nif_empresa, $taules_gen)
-   {
-
-            $dbcadcon = array();
-
-             $txt_valors="";
-             foreach($taules_gen as $valor) {
-                      $txt_valors.="'$valor',";
-             }
-             $tvalors = substr($txt_valors,0,strlen($txt_valors)-1);
-
-
-             $conn = new consulta_sql($conn_db);
-             
-             $query1 = "select cadena_con, usuari, pw, tipus_db, id_generic from dades_ext de inner join db_ext be on de.db_ext = be.codi where nif = '$nif_empresa' and id_generic in ($tvalors)";
-             $conn->fer_consulta($query1);
-
-             $db=[];
-             while(!$conn->Eof()) {
-                    $row = $conn->row;
-
-                    if(!in_array($row[0],$dbcadcon)) {
-                        $db[$row[4]] = new base_dades($row[0], $row[1], $row[2], "N", $row[3]);
-                        $dbcadcon[$row[4]] = $row[0];
-                    } else {
-                        $clau = array_search($row[0], $dbcadcon);
-                        $db[$row[4]] = $db[$clau];
-                    }
-                    $conn->Skip();
-             }
-
-  
-             return $db;
-   }
-
-   function consulta_dades_ext($conn_db, $nif_empresa, $taules_gen, $condExtra='') {
-
-            $retorn = "";
-            $cons = new consulta_sql($conn_db);
-            $query = "select * from dades_ext where nif = '$nif_empresa' and id_generic = '$taules_gen'";
-
-            $cons->fer_consulta($query);
-            $row = $cons->row;
-
-            $query1 = "select $row[4] from $row[3] ";
-
-            if ($row[5])
-            {
-               if($condExtra)
-                  $cond = str_replace("$", "'".$condExtra."'", $row[5]);
-               else
-                  $cond = str_replace("= $", "is null", $row[5]);
-   
-               $query1 .= "where $cond ";
-            }
-
-            if ($row[6])
-               $query1 .= "order by $row[6] ";
-
-            $retorn[0] = $query1;
-            $retorn[1] = $row[0];
-            $retorn[2] = $row[8];
-            $retorn[3] = $row[9];
-            $cons->tanca_consulta();
-            return $retorn;
-   }
    /**********************************************
    **   FUNCIONES DE TRATAMIENTO DE MARCAJES  ***
    **********************************************/
