@@ -14,7 +14,7 @@ class ReportHeaders
 
     public function __construct()
     {
-        $this->defHeaders = array();
+        $this->defHeaders = [];
     }
 
     public function addHeader(ReportColumn $defColumn)

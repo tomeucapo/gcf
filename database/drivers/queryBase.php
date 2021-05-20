@@ -21,6 +21,21 @@ class errorQuerySQL extends Exception
 				      preg_match("/Broken pipe$/", $this->message) || 
 					  preg_match("/^Unable to complete network request/", $this->message) );
       }
+
+      public function isTooManyHandles()
+      {
+          return (  preg_match("/too many open handles/", $this->message) );
+      }
+
+      public function isInvalidRequest()
+      {
+          return (  preg_match("/invalid request handle/", $this->message) );
+      }
+
+      public function isUnrecoverable()
+      {
+          return ($this->isTooManyHandles() || $this->isConnectionError() || $this->isInvalidRequest());
+      }
 }
 
 class errorTransSQL extends Exception {};
@@ -120,7 +135,7 @@ abstract class queryBase
             return $this->error;
     }
 
-    public function StoreFileToBLOB($nomFitxer)
+    public function StoreFileToBLOB(string $nomFitxer)
     {
            if(!file_exists($nomFitxer)) 
               return false;

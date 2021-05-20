@@ -85,7 +85,7 @@ abstract class taskPlugin
 
         if ($this->mode === self::BACKGROUND_MODE)
         {
-            $cache = \configurador::getInstance()->getCache();
+            $cache = \app\configurador::getInstance()->getCache();
 
             $jobStatus = new \stdClass();
             $jobStatus->handle = $this->jobHandle;
@@ -108,7 +108,7 @@ abstract class taskPlugin
      */
     public function getStatus($taskName, $jobHandle)
     {
-        $cache = \configurador::getInstance()->getCache();
+        $cache = \app\configurador::getInstance()->getCache();
         $taskKey = self::TaskKey($taskName, $jobHandle);
         $jobStatusInfo = $cache->get($taskKey);
 
@@ -138,7 +138,7 @@ abstract class taskPlugin
     {
         if (!$this->jobResult)
         {
-            $cache = \configurador::getInstance()->getCache();
+            $cache = \app\configurador::getInstance()->getCache();
             $jobStatusInfo = $cache->get(self::TaskKey($taskName, $jobHandle));
 
             if (empty($jobStatusInfo))

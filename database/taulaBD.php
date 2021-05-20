@@ -56,7 +56,6 @@ abstract class taulaBD
     public $result;
 
     public $lastError;
-    public $filtre;
     public $autoCommit;
     public $clientType;
 
@@ -109,7 +108,6 @@ abstract class taulaBD
 
         $this->useCommonTransact = false;
         $this->autoCommit = false;
-        $this->filtre = new filtreTaulaBD($this);
         $this->commonQuery = new consulta_sql($this->db);
         $this->converter = new gcf\database\DataConverter($this);
     }
@@ -219,6 +217,22 @@ abstract class taulaBD
         return $cond;
     }
 
+    public function PrimaryKey()
+    {
+        $pkValue = null;
+
+        if (is_array($this->primaryKey))
+        {
+            $pkValue = [];
+            foreach ($this->primaryKey as $camp) {
+                $pkValue[$camp] = $this->camps[$camp];
+            }
+            return $pkValue;
+        }
+
+        return $this->camps[$this->primaryKey];
+    }
+
     /**
      * @param string $dades_xml If clienttype is JSCRIPT this parameter contains XML data with fields and values
      * @return bool Returns false it fails, true otherwise
@@ -257,12 +271,17 @@ abstract class taulaBD
 
         try {
             $idTrans = null;
+            /*
             if ($this->autoCommit || $this->useCommonTransact)
             {
                 if ($this->useCommonTransact && !$this->commonTransId)
                     $this->commonTransId = $cons->iniciTrans();
                 else $idTrans = $cons->iniciTrans();
             }
+            */
+
+            if ($this->autoCommit)
+                $idTrans = $cons->iniciTrans();
 
             $cons->fer_consulta($this->lastQuery);
 
@@ -313,6 +332,8 @@ abstract class taulaBD
             $this->lastQuery = $this->converter->ArrayToSQL(\Gcf\database\ConverterType::SQLUpdate, $this->camps);
         }
 
+        $this->escriuLog($this->lastQuery);
+
         $cons = new consulta_sql($this->db);
 
         try {
@@ -341,7 +362,7 @@ abstract class taulaBD
      * @return bool
      * @throws Exception
      */
-    final public function guardaImatge($id, string $fitxerImatge)
+    final public function guardaImatge($id, string $fitxerImatge): bool
     {
         $cons = new consulta_sql($this->db);
 
@@ -392,7 +413,7 @@ abstract class taulaBD
             $cond = "where " . $cond;
 
         $query = "select * from {$this->nomTaula} " . $cond . ' ' . $orderBy;
-
+	
         try {
             if ($this->autoCommit) $cons->ferCommit();
             $cons->fer_consulta($query, $assoc = true);
@@ -421,6 +442,7 @@ abstract class taulaBD
             $i++;
         }
 
+	$this->lastQuery = $query;
         $this->result = new ResultSet($cons, $this->primaryKey);
 
         return true;
@@ -488,7 +510,7 @@ abstract class taulaBD
      * Return a fields serialized to JSON
      * @return string
      */
-    public function JSONObject()
+    public function JSONObject(): string
     {
         return (json_encode($this->camps));
     }
@@ -500,7 +522,7 @@ abstract class taulaBD
      * @return array List of years from this field
      * @throws errorQuerySQL
      */
-    public function ExtreuAnys($camp_data, $where = "")
+    public function ExtreuAnys(string $camp_data, $where = ""): array
     {
         $llistaAnys = [];
 
@@ -524,12 +546,12 @@ abstract class taulaBD
      * Get database connection.
      * @return base_dades
      */
-    final public function getConnection()
+    final public function getConnection(): base_dades
     {
         return $this->db;
     }
 
-    public function commitAll()
+    public function commitAll(): bool
     {
         if ($this->useCommonTransact && $this->commonTransId)
         {
@@ -540,7 +562,7 @@ abstract class taulaBD
         return false;
     }
 
-    public function rollbackAll()
+    public function rollbackAll(): bool
     {
         if ($this->useCommonTransact && $this->commonTransId)
         {

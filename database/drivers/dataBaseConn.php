@@ -2,6 +2,8 @@
 
 class errorDatabaseDriver extends Exception {};
 
+class errorDatabaseAutentication extends Exception {};
+
 class errorDatabaseConnection extends Exception 
 {
       public function __construct($message = null, $code = 0)
@@ -16,7 +18,7 @@ class errorDatabaseConnection extends Exception
 /**
  * Class dataBaseConn
  */
-abstract class dataBaseConn
+abstract class dataBaseConn implements gcf\database\DBConnection
 {
     /**
      * @var string Connection string properties
@@ -32,7 +34,12 @@ abstract class dataBaseConn
      * @var mixed Driver resource connection
      */
 	public $connDb;
-	
+
+    /**
+     * @return mixed
+     * @throws errorDatabaseAutentication
+     */
+	abstract public function Open();
 	abstract public function Close();
 	abstract public function lastError();
 	

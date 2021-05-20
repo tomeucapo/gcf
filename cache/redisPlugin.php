@@ -60,7 +60,7 @@ class redisPlugin extends cachePlugin
 
     public function delete($key)
     {
-           return ($this->cacheObj->delete($key)>0);
+           return ($this->cacheObj->del($key)>0);
     }
 
     public function inc($key, ?int $value=null)
@@ -79,7 +79,7 @@ class redisPlugin extends cachePlugin
 
     public function __destruct()
     {
-           if ($this->cacheObj instanceof Redis)
+           if ($this->cacheObj instanceof \Redis)
                $this->cacheObj->close();
     }
 }

@@ -8,11 +8,13 @@
 
 namespace gcf\database;
 
+use PDO;
+
 class DatabaseConnector
 {
     /**
      * Database connection object
-     * @var \dataBaseConn
+     * @var PDO
      */
     public $dataBase;
 
@@ -43,16 +45,17 @@ class DatabaseConnector
         if (empty($drv))
             throw new errorDriverDB("No s'ha especificat el driver de base de dades a instanciar!");
 
-        $this->drv = strtolower($drv);
-        $this->className = "gcf\\database\\drivers\\{$this->drv}\\connector";
+        if (!empty($my_role) && $drv === "firebird")
+            $cadConn.=",role=$my_role";
 
-        if(!class_exists($this->className))
-            throw new errorDriverDB("Hi ha problemes per instanciar la classe del driver de BBDD {$this->className}");
+        $this->dataBase = new PDO("{$drv}:{$cadConn}", $user, $passwd);
 
+        $this->drv = $drv;
         $this->cadConn = $cadConn;
         $this->user = $user;
         $this->passwd = $passwd;
         $this->myRole = $my_role;
+
         if ($mode != 'P' && $mode != 'N')
             throw new errorDriverDB("Mode de connexio incorrecte, nomes pot esser P o N");
 
@@ -64,8 +67,7 @@ class DatabaseConnector
 
     private function connecta()
     {
-        $className = $this->className;
-        $this->dataBase = new $className($this->cadConn, $this->user, $this->passwd, $this->myRole, $this->mode);
+        $this->dataBase = new PDO("{$this->drv}:{$this->cadConn}", $this->user, $this->passwd);
     }
 
     /**
@@ -87,7 +89,7 @@ class DatabaseConnector
         return $this->service;
     }
 
-    public function endoll_db()
+    public function endoll_db() : PDO
     {
         return ($this->dataBase);
     }
@@ -95,17 +97,12 @@ class DatabaseConnector
     public function desconnecta()
     {
         if(!$this->dataBase) return;
-        $this->dataBase->Close();
+        $this->dataBase = null;
     }
 
     public function reconnecta()
     {
         $this->desconnecta();
         $this->connecta();
-    }
-
-    public function __destruct()
-    {
-        $this->dataBase->Close();
     }
 }

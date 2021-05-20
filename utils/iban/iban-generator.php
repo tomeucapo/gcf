@@ -6,12 +6,11 @@ class IBANGenerator {
     protected $bankAccountNr;
 
     /**
-* Constructor
-*
-* @param type $bankCode
-* @param type $bankAccountNr
-* @param type $locale
-*/
+     * IBANGenerator constructor.
+     * @param $bankCode
+     * @param $bankAccountNr
+     * @param string $locale
+     */
     function __construct($bankCode, $bankAccountNr, $locale = 'ES') {
         $this->locale = $locale;
         $this->bankCode = $bankCode;

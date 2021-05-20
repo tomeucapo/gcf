@@ -31,7 +31,7 @@ class Record
             return null;
 
         $typeParts = [];
-        if (preg_match("^([A-Z]+)", $this->types[$property]["type"], $typeParts) && count($typeParts) > 0)
+        if (preg_match("/^([A-Z]+)/", $this->types[$property]["type"], $typeParts) && count($typeParts) > 0)
            return $typeParts[1];
 
         return $this->types[$property]["type"];

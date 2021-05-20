@@ -9,14 +9,20 @@
 namespace gcf\database;
 
 use gcf\cache\cachePlugin;
+use PDO;
 
 class SQLQuery
 {
     /**
      * Query object
-     * @var \queryBase
+     * @var \PDO
      */
     private $consulta;
+
+    /**
+     * @var \PDOStatement
+     */
+    private $stmt;
 
     /**
      * @var cachePlugin
@@ -41,8 +47,7 @@ class SQLQuery
      */
     public function __construct(DatabaseConnector $db, cachePlugin $cache=null, $autoFlush=false)
     {
-        $className = "gcf\\database\\drivers\\{$db->drv}\\querySql";
-        $this->consulta = new $className($db->dataBase);
+        $this->consulta = $db->endoll_db();
 
         if (!empty($cache))
             $this->cache = $cache;
@@ -88,7 +93,7 @@ class SQLQuery
                 $queryObj = new \stdClass;
                 $queryObj->consulta = $this->consulta;
                 $queryObj->rowTypes = $this->extractFieldTypes();
-                $queryObj->allRows = [ $this->consulta->row ];
+                $queryObj->allRows = [ $this->stmt->fetch($this->assoc ? PDO::FETCH_ASSOC : PDO::FETCH_NUM ) ];
                 $this->cache->set($this->firmaLastQuery, $queryObj);
                 $this->queryObj = $queryObj;
             } else {
@@ -110,8 +115,7 @@ class SQLQuery
      */
     public function executa($assoc=false)
     {
-        if (isset($this->consulta))
-            return $this->fer_consulta($this->consulta->query, $assoc);
+        // TODO
         return false;
     }
 
@@ -140,24 +144,25 @@ class SQLQuery
         {
             if ($this->initialGet)
             {
-                $this->consulta->Skip();
-                if (!$this->consulta->Eof()) {
-                    $this->queryObj->allRows[] = $this->consulta->row;
+                $row = $this->stmt->fetch($this->assoc ? PDO::FETCH_ASSOC : PDO::FETCH_NUM );
+                if ($row !== false) {
+                    $this->queryObj->allRows[] = $row;
                 }
-                $this->row = $this->consulta->row;
+                $this->row = $row;
             } else {
                 $this->row = $this->queryObj->allRows[$this->rowCount++];
             }
         }
         else
         {
-            $this->consulta->Skip();
-            $this->row = $this->consulta->row;
+            $this->row = $this->stmt->fetch($this->assoc ? PDO::FETCH_ASSOC : PDO::FETCH_NUM );
         }
     }
 
     public function Record()
     {
+        return 0;
+        /*
         if (isset($this->cache))
         {
             if ($this->initialGet)
@@ -166,6 +171,7 @@ class SQLQuery
         }
 
         return $this->consulta->Record();
+    */
     }
 
     public function LastRecord()
@@ -173,15 +179,16 @@ class SQLQuery
         if (isset($this->cache))
         {
             if ($this->initialGet)
-                return $this->consulta->LastRecord();
+                return $this->stmt->rowCount();
             return (count($this->queryObj->allRows));
         }
 
-        return $this->consulta->LastRecord();
+        return $this->stmt->rowCount();
     }
-
+/*
     public function TipusField($numField)
     {
+
         if (isset($this->cache))
         {
             if ($numField>count($this->queryObj->rowTypes))
@@ -189,7 +196,7 @@ class SQLQuery
             return $this->queryObj->rowTypes[$numField]["TYPE"];
         }
 
-        return $this->consulta->GetFieldType($numField);
+        return $this->stmt->getColumnMeta($numField);
     }
 
     public function NomField($numField)
@@ -206,37 +213,37 @@ class SQLQuery
 
     public function RelacioField($numRow)
     {
-        return $this->consulta->GetFieldRelation($numRow);
+        //return $this->consulta->GetFieldRelation($numRow);
     }
-
+*/
     public function NumFields()
     {
-        return $this->consulta->NumFields();
+        return $this->stmt->columnCount();
     }
 
     public function carregarBLOB($blobID)
     {
-        return $this->consulta->LoadFromBLOB($blobID);
+       //  return $this->consulta->LoadFromBLOB($blobID);
     }
 
     public function guardaImatge($fileName)
     {
-        return $this->consulta->StoreFileToBLOB($fileName);
+       // return $this->consulta->StoreFileToBLOB($fileName);
     }
 
     public function iniciTrans()
     {
-        return $this->consulta->BeginTrans();
+        return $this->consulta->beginTransaction();
     }
 
-    public function ferRollback($idTrans=null)
+    public function ferRollback()
     {
-        return $this->consulta->Rollback($idTrans);
+        return $this->consulta->Rollback();
     }
 
-    public function ferCommit($idTrans=null)
+    public function ferCommit()
     {
-        return $this->consulta->Commit($idTrans);
+        return $this->consulta->Commit();
     }
 
     public function tanca_consulta()
@@ -246,7 +253,6 @@ class SQLQuery
                 $this->cache->set($this->firmaLastQuery, $this->queryObj);
             }
         }
-        $this->consulta->Close();
     }
 
     public function nextID($genID)
@@ -269,6 +275,5 @@ class SQLQuery
         if (isset($this->cache) && !$this->initialGet && $this->autoFlush) {
             $this->cache->delete($this->firmaLastQuery);
         }
-        $this->consulta->Close();
     }
 }

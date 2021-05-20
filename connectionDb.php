@@ -62,13 +62,26 @@ class connectionDb
      * @param string $mode Mode of connection P = Persistent / N = Non-persistent
      * @return base_dades
      * @throws errorDriverDB
+     * @throws errorDatabaseConnection
+     * @throws errorDatabaseAutentication
      */
-    public function getConnection($mode="P")
+    public function getConnection($mode="N")
     {
         if (!isset($this->conn))
             $this->conn = new base_dades($this->connStr, $this->user, $this->passwd, $mode, $this->type, $this->role);
 
         return $this->conn;
+    }
+
+    /**
+     * @throws errorDatabaseAutentication
+     * @throws errorDatabaseConnection
+     * @throws errorDriverDB
+     */
+    public function reconnect()
+    {
+        $this->close();
+        $this->getConnection();
     }
 
     public function close()

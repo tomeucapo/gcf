@@ -7,37 +7,39 @@ include "ReportHeaders.php";
 include "ReportColumn.php";
 include "web/ws/wsBase.php";
 
+use app\configurador;
 use gcf\cache\cachePlugin;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 abstract class DataReportBase implements DataReport
-{     
-        const XML_OUT = 1;
-        const JSON_OUT = 2;
-        const XLS_OUT = 3;
-        const PDF_OUT = 4;
+{
+    const XML_OUT = 1;
+    const JSON_OUT = 2;
+    const XLS_OUT = 3;
+    const PDF_OUT = 4;
 
-
-        private static $cellStylesDetails = [
-	        'font' => [
-		            'name' => 'Courier New',
-		                'size' => 9
-		            ],
-	            'borders' => [
-	            'bottom' => [
-	                'style' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                    'color' => ['rgb' => '000000']
+    private static $cellStylesDetails = [
+        'font' => [
+            'name' => 'Courier New',
+            'size' => 9
+        ],
+        'borders' => [
+            'bottom' => [
+                'style' => Border::BORDER_THIN,
+                'color' => ['rgb' => '000000']
             ]
         ],
-        'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                   "color" => ['rgb' => 'FFFFFF']]
-	       ];
+        'fill' => ['fillType' => Fill::FILL_SOLID,
+            "color" => ['rgb' => 'FFFFFF']]
+    ];
 
         public $filtres;
         
@@ -114,8 +116,32 @@ abstract class DataReportBase implements DataReport
         {
                $this->header = $header;
         }
-        
-        public function GetHeaders() 
+
+        protected function DefineColumns(array $definitions)
+        {
+            $headers = new ReportHeaders();
+
+            foreach ($definitions as $columna)
+            {
+                if (array_key_exists("type", $columna))
+                    $column = new ReportColumn($columna["type"]);
+                else $column = new ReportColumn();
+
+                $column->key = $columna["key"];
+                $column->label = $columna["label"];
+                $column->width = $columna["width"];
+                $column->formatter = $columna["formatter"];
+                $column->filter = $columna["filter"];
+                $column->className = $columna["className"];
+                $column->sortable = $columna["sortable"];
+                $headers->addHeader($column);
+            }
+
+            $this->SetHeaders($headers);
+        }
+
+
+    public function GetHeaders()
         {
                return $this->header;
         }
@@ -259,18 +285,19 @@ abstract class DataReportBase implements DataReport
                   // Totes les dades de cada fila
                   $row++;                 
                   foreach ($this->data as $reg)
-                  {               
+                  {
                            $col = 1;
                            foreach($this->header->getFields() as $field)
                            {
                                   // TODO: Review this str_replace, is dirty trick!
 
-                                  $sheet->getStyleByColumnAndRow($col, $row)->applyFromArray(self::$cellStylesDetails);
+                                $sheet->getStyleByColumnAndRow($col, $row)->applyFromArray(self::$cellStylesDetails);
                                   if ($colTypes[$col-1] === ReportColumn::NUMBER_FORMAT)
                                   {
-                                      $sheet->getStyleByColumnAndRow($col, $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_00);
+                                      $sheet->getStyleByColumnAndRow($col, $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
                                       $sheet->setCellValueByColumnAndRow($col, $row, str_replace(",",".",$reg[$field]));
                                   } else {
+                                      $sheet->getStyleByColumnAndRow($col, $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                                       $sheet->setCellValueByColumnAndRow($col, $row, $reg[$field]);
                                   }
 

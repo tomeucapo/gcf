@@ -6,14 +6,29 @@
     TCC 2006 (C)
 */
 
-    /* 
-       Redondeig especial d'un valor x: 
 
-           pE = |E[x]| , pD = x - pE
+function parseRequestHeaders()
+{
+    $headers = array();
+    foreach ($_SERVER as $key => $value) {
+        if (substr($key, 0, 5) <> 'HTTP_') {
+            continue;
+        }
+        $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+        $headers[$header] = $value;
+    }
+    return $headers;
+}
 
-           0 < pD < 0.5 => x = pE + 0.5
-         0.5 < pD < 1   => x = pE + 1
-    */
+
+/*
+   Redondeig especial d'un valor x:
+
+       pE = |E[x]| , pD = x - pE
+
+       0 < pD < 0.5 => x = pE + 0.5
+     0.5 < pD < 1   => x = pE + 1
+*/
 
     function redondeigMitg($x)
     {
@@ -86,6 +101,14 @@
 	  	     return($retval);
     }
 
+/**
+ * @param $db
+ * @param $C_NOM_CAMP
+ * @param $C_CENTRE
+ * @param $C_DEPART
+ * @return string
+ * @throws errorQuerySQL
+ */
 	function taula_departs_centre($db, $C_NOM_CAMP, $C_CENTRE, $C_DEPART)
 	{
     	     $query_dep = "centre cen, centre_dep cd ";

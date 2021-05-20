@@ -2,10 +2,13 @@
 
 class querySQLFirebird extends queryBase
 {
-      private $myEof, $hndTrans;
+      private $myEof;
+
+      protected $hndTrans;
 
       public function __construct(dataBaseConn $db)
       {
+             $this->hndTrans = null;
              parent::__construct($db);
       }
 
@@ -31,6 +34,7 @@ class querySQLFirebird extends queryBase
     /**
      * @return resource
      * @throws errorQuerySQL
+     * @throws errorDatabaseAutentication
      */
       public function Execute()
       {
@@ -39,7 +43,7 @@ class querySQLFirebird extends queryBase
              $this->rowActual = 0;
 
              // Si existeix una transaccio iniciada, aleshores executam aquesta sentencia dins la TX
-             if ($this->hndTrans)
+             if (isset($this->hndTrans) && $this->hndTrans !== null)
                  $cnx = $this->hndTrans;
              else $cnx = $this->connDb;
 
@@ -48,10 +52,19 @@ class querySQLFirebird extends queryBase
              else
                  $this->result = @ibase_query($cnx, $this->query);
 
-             if (!$this->result)
+             if ($this->result === false)
              {
                  $this->error = $this->dataBase->lastError();
-                 throw new errorQuerySQL($this->dataBase->lastError(), $this->query);
+                 if (preg_match("/too many open handles/", $this->error) || empty($this->error))
+                 {
+                     $this->dataBase->Close();
+                     $this->dataBase->Open();
+                 }
+
+                 if (empty($this->error))
+                     $this->error = "Unknown Firebird API client error";
+
+                 throw new errorQuerySQL($this->error, $this->query);
              }
              
              if (preg_match("/^[ \n\r\t]*(select|SELECT)/", $this->query))
@@ -134,16 +147,16 @@ class querySQLFirebird extends queryBase
 			 // Si ens pasen un ID de transsaccio llavors commitam aquella transaccio
 			 // si no, commitam totes les transaccions
 
-             $this->hndTrans = null;
-             if (!$idTrans)
+             unset($this->hndTrans);
+             if ($idTrans === null)
 	             return @ibase_commit($this->connDb);  
 			 return @ibase_commit($idTrans);
       }
 
       public function Rollback($idTrans=null) 
       {
-             $this->hndTrans = null;
-             if (!$idTrans)
+             unset($this->hndTrans);
+             if ($idTrans === null)
 	             return @ibase_rollback($this->connDb);
 			 return @ibase_rollback($idTrans);
       }
@@ -154,7 +167,7 @@ class querySQLFirebird extends queryBase
      */
       public function BeginTrans()
       {
-             $this->hndTrans = null;
+             unset($this->hndTrans);
              if (!($hndTrans = @ibase_trans(IBASE_CONCURRENCY, $this->connDb)))
 				throw new errorTransSQL($this->dataBase->lastError());
 
@@ -177,5 +190,4 @@ class querySQLFirebird extends queryBase
             $this->rowActual=-1;
             $this->result=0;
       }
-
 }

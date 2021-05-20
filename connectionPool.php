@@ -28,8 +28,13 @@ class connectionPool
       {
              if (self::$instance === null)
                  self::$instance = new connectionPool($dbMain);
-          
+
              return self::$instance;
+      }
+
+      public function GetMainDBId()
+      {
+          return $this->dbMain;
       }
 
     /**
@@ -65,6 +70,16 @@ class connectionPool
                      $dbConn->role = $role;
                  }
              }
+      }
+
+      public function reconnectAll()
+      {
+          if (empty($this->dbConns)) return;
+
+          foreach($this->dbConns as $dbConn)
+          {
+              $dbConn->reconnect();
+          }
       }
 
       public function closeAll()

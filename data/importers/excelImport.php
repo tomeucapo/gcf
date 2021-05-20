@@ -2,6 +2,7 @@
 
 namespace gcf\data\importers;
 
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 /**
@@ -20,7 +21,7 @@ abstract class excelImport
      * @param int $sheetNum
      * @throws \Exception
      */
-    public function __construct($nomFitxer, $sheetNum = 0)
+    public function __construct(string $nomFitxer, $sheetNum = 0)
     {
         if (!file_exists($nomFitxer))
             throw new \Exception("$nomFitxer file not found!");
@@ -36,7 +37,7 @@ abstract class excelImport
     /**
      * @return string
      */
-    public function getNumCols()
+    public function getNumCols(): string
     {
         return $this->highestColumn;
     }
@@ -44,7 +45,7 @@ abstract class excelImport
     /**
      * @param $cellId
      * @return mixed
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @throws Exception
      */
     public function getCell($cellId)
     {
@@ -69,7 +70,7 @@ abstract class excelImport
     /**
      * Ens diu si hem arribat al final del llistat
      */
-    public function eof()
+    public function eof(): bool
     {
         return (!($this->pRow <= $this->highestRow));
     }
@@ -99,7 +100,7 @@ abstract class excelImport
         return $this->pRow;
     }
 
-    public function getIterator()
+    public function getIterator(): DataIterator
     {
         return new DataIterator($this);
     }

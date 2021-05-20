@@ -5,9 +5,11 @@
  * @author Tomeu Capó
  */
 
+use app\configurador;
+use gcf\ConfiguratorBase;
+
 include_once "interfaces/modul.php";
 include_once "web/modulTemplate.php";
-include_once "ConfiguratorBase.php";
 
 /**
  * Class modulBase
@@ -53,7 +55,7 @@ abstract class modulBase implements modul
     public $lastResultType = null;
     public $lastResultOutfile = null;
 
-    public function __construct(ConfiguratorBase $cfg, $name="", $withTemplate=true, $tmplEngineName="")
+    public function __construct(gcf\ConfiguratorBase $cfg, $name="", $withTemplate=true, $tmplEngineName="")
     {
         $this->configurador = $cfg;
         $this->db = $cfg->db;
@@ -62,9 +64,9 @@ abstract class modulBase implements modul
             $name = self::classBaseName();
 
         // Try to get module specific log
-        $this->logger = ConfiguratorBase::getLogger($name);
+        $this->logger = $cfg->getLoggerObject($name);
         if ($this->logger === null)
-            $this->logger = ConfiguratorBase::getLogger();
+            $this->logger = $cfg->getLoggerObject();
 
         if ($withTemplate)
         {
@@ -107,9 +109,23 @@ abstract class modulBase implements modul
         $this->templates[$templateName]->renderVar($varName, $value);
     }
 
+    /**
+     * @param string $templateName
+     * @return string
+     * @deprecated
+     */
     public function resultat_html($templateName="principal")
     {
            return "".$this->templates[$templateName];
+    }
+
+    /**
+     * @param string $templateName
+     * @return string
+     */
+    public function ParsedResult($templateName="principal")
+    {
+        return "".$this->templates[$templateName];
     }
 
     protected static function classBaseName()

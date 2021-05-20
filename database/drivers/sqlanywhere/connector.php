@@ -2,6 +2,14 @@
 
 class baseDades extends dataBaseConn
 {
+    /**
+     * baseDades constructor.
+     * @param $cadConn
+     * @param $user
+     * @param $passwd
+     * @throws errorDatabaseConnection
+     * @throws errorDatabaseDriver
+     */
       public function __construct($cadConn, $user, $passwd) 
       {
 	         if (!function_exists("sasql_pconnect"))
@@ -24,6 +32,9 @@ class baseDades extends dataBaseConn
       {
 	     return(sasql_error($this->connDb));
       }
-}
 
-?>
+    public function Open()
+    {
+        // TODO: Implement Open() method.
+    }
+}

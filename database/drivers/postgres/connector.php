@@ -29,4 +29,9 @@ class baseDadesPostgres extends dataBaseConn
       {
 	    $this->Close();
       }
+
+    public function Open()
+    {
+        // TODO: Implement Open() method.
+    }
 }

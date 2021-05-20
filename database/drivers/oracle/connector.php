@@ -2,6 +2,16 @@
 
 class baseDadesOracle extends dataBaseConn
 {
+    /**
+     * baseDadesOracle constructor.
+     * @param $cadConn
+     * @param $user
+     * @param $passwd
+     * @param $role
+     * @param string $mode
+     * @throws errorDatabaseConnection
+     * @throws errorDatabaseDriver
+     */
       public function __construct($cadConn, $user, $passwd, $role, $mode="N") 
       {
              $funcConn = ($mode == "N") ? "ocilogon" : "ociplogon";
@@ -32,4 +42,9 @@ class baseDadesOracle extends dataBaseConn
       {
 	     $this->Close();
       }
+
+    public function Open()
+    {
+        // TODO: Implement Open() method.
+    }
 }

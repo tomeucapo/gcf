@@ -39,6 +39,7 @@ class twigEngine extends templateEngine
      */
     private $parsedContent;
 
+
     public function __construct()
     {
         $this->loader = new FilesystemLoader();
@@ -49,7 +50,7 @@ class twigEngine extends templateEngine
     }
 
     /**
-     * @param $dirName
+     * @param string $dirName
      * @throws LoaderError
      */
     public function setBasedir($dirName)
@@ -64,16 +65,31 @@ class twigEngine extends templateEngine
      */
     public function setAssetsdir($dirName)
     {
-        $this->objEngine->addFunction(new TwigFunction("asset", function ($asset) use ($dirName) {
-                return $dirName . $asset;
-            }));
+        parent::setAssetsdir($dirName);
+        $this->initFunctions();
+    }
 
-        $this->objEngine->addFunction(new TwigFunction("button", function ($link, $image, $hint) use ($dirName) {
-            return "<a href=\"$link\"><img src=\"$dirName"."$image\" title=\"$hint\" alt=\"$hint\" border=\"0\"></a>";
+    /**
+     * Create self functions used on templates
+     */
+    private function initFunctions()
+    {
+        $this->objEngine->addGlobal("dropdown", new DropDown());
+
+        $this->objEngine->addFunction(new TwigFunction("asset", function ($asset) {
+            return $this->dirAssets . $asset;
         }));
 
-        $this->objEngine->addFunction(new TwigFunction("button32", function ($link, $image, $hint) use ($dirName) {
-            return "<a href=\"$link\"><img src=\"$dirName"."$image\" title=\"$hint\" alt=\"$hint\" border=\"0\" height='32px' width='32px'></a>";
+        $this->objEngine->addFunction(new TwigFunction("button", function ($link, $image, $hint) {
+            return "<a href=\"$link\"><img src=\"{$this->dirAssets}"."$image\" title=\"$hint\" alt=\"$hint\" border=\"0\"></a>";
+        }));
+
+        $this->objEngine->addFunction(new TwigFunction("button32", function ($link, $image, $hint) {
+            return "<a href=\"$link\"><img src=\"{$this->dirAssets}"."$image\" title=\"$hint\" alt=\"$hint\" border=\"0\" height='32px' width='32px'></a>";
+        }));
+
+        $this->objEngine->addFunction(new TwigFunction("button16", function ($link, $image, $hint) {
+            return "<a href=\"$link\"><img src=\"{$this->dirAssets}"."$image\" title=\"$hint\" alt=\"$hint\" border=\"0\" height='16px' width='16px'></a>";
         }));
     }
 

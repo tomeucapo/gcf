@@ -17,6 +17,11 @@ abstract class templateEngine
     protected $dirTemplates;
     protected $fileExtension;
 
+    /**
+     * @var string
+     */
+    protected $dirAssets;
+
     abstract public function addVar($tmplName, $varName, $value);
     abstract public function addVars($tmplName, array $values);
     abstract public function parseTemplate($tmplName, $mode="w");
@@ -28,12 +33,16 @@ abstract class templateEngine
     abstract public function getParsedTemplate($tmplName);
     abstract public function displayParsedTemplate($tmplName);
     abstract public function readTemplatesFromFile($fileName);
-    abstract public function setAssetsdir($dirName);
     abstract public function exists($tmplName);
     abstract public function getTemplateContent($tmplName);
 
     public function setBasedir($dirName)
     {
         $this->dirTemplates = $dirName;
+    }
+
+    public function setAssetsdir($dirName)
+    {
+        $this->dirAssets = $dirName;
     }
 }

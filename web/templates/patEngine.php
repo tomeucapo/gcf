@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * patTemplate engine class wrapper
  * User: tomeu
  * Date: 8/1/2018
  * Time: 2:14 PM
@@ -22,11 +22,6 @@ class patEngine extends templateEngine
     {
         parent::setBasedir($dirName);
         $this->objEngine->setBasedir($dirName);
-    }
-
-    public function setAssetsdir($dirName)
-    {
-        // TODO: Implement setAssetsdir() method.
     }
 
     public function addVar($tmplName, $varName, $value)

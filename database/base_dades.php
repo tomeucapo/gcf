@@ -38,7 +38,10 @@ class base_dades
      * @param string $drv
      * @param string $my_role
      * @throws errorDriverDB
+     * @throws errorDatabaseConnection
+     * @throws errorDatabaseAutentication
      */
+
     public function __construct($cadConn, $user, $passwd, $mode="N", $drv="firebird", $my_role="")
       {
 			 if (empty($drv))
@@ -68,6 +71,10 @@ class base_dades
 			 $this->connecta();
       }
 
+    /**
+     * @throws errorDatabaseConnection
+     * @throws errorDatabaseAutentication
+     */
 	  private function connecta()
 	  {
 			 $className = $this->className;

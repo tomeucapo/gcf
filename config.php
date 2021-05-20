@@ -6,9 +6,9 @@
   $ID_ENVIRONMENT=getenv("APPS_ENVIRONMENT_ID");
   $PATH_CONF=getenv("APPS_ENVIRONMENT_CONF");
 
+  $APP_SESSION_NAME = $APP_NAME."_".$ID_ENVIRONMENT;
+
   $CFG_FILE=$PATH_CONF."/$APP_NAME/properties_".$ID_ENVIRONMENT.".ini";
-
-
 
   include "parseProps.php";
 
