@@ -1,20 +1,14 @@
 <?php
-
-
 namespace gcf\utils;
 
-require_once "iban/iban-generator.php";
-
-use Data\models\codiBicTbl;
-use gcf\database\errorDriverDB;
-use IBANGenerator;
+use gcf\utils\iban\IBANGenerator;
 
 class NumeroCompte
 {
-    private $entitat;
-    private $oficina;
-    private $dc;
-    private $compte;
+    private string $entitat;
+    private string $oficina;
+    private string $dc;
+    private string $compte;
 
     /**
      * NumeroCompte constructor.
@@ -110,17 +104,6 @@ class NumeroCompte
     public function GetCompteCorrent() : string
     {
         return $this->entitat."-".$this->oficina."-".$this->dc."-".$this->compte;
-    }
-
-    /**
-     * @return string
-     * @throws \errorQuerySQL
-     * @throws errorDriverDB
-     * @throws \noPrimaryKey
-     */
-    public function GetBIC()
-    {
-        return codiBicTbl::Get($this->entitat)->BIC;
     }
 
     /**

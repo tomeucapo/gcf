@@ -27,7 +27,7 @@ abstract class ConfiguratorBase
 {
     public array $dirs = [];
 
-    public web\templates\templateEngine $tmpl;
+    public templateEngine $tmpl;
 
     /**
      * @var array
@@ -143,7 +143,8 @@ abstract class ConfiguratorBase
         if (!$config->general->template_engines)
             throw new \Exception("There not defined template_engines into configuration file!");
 
-        foreach (explode(",", $config->general->template_engines) as $engineName) {
+        foreach (explode(",", $config->general->template_engines) as $engineName)
+        {
             $engineName = trim($engineName);
             $engineClassName = "gcf\\web\\templates\\" . $engineName;
 
@@ -278,7 +279,7 @@ abstract class ConfiguratorBase
      * @param string $dbName
      * @return connectionPool
      */
-    public static function getDBPool(string $dbName = "")
+    public static function getDBPool(string $dbName = "") : connectionPool
     {
         return connectionPool::getInstance($dbName);
     }
