@@ -16,16 +16,22 @@ class Record
     /**
      * @var array
      */
-    private array $types;
+    protected array $types;
 
-    public function __construct(array $dataIn=[], ?array $types=[])
+    public function __construct(array $dataIn = [], ?array $types = [])
     {
         $this->camps = array_map(function ($value) {
             if (is_string($value) && mb_detect_encoding($value, 'UTF-8', true) !== 'UTF-8')
                 return utf8_encode($value);
-            return $value; }, $dataIn);
+            return $value;
+        }, $dataIn);
 
         $this->types = $types ?? [];
+    }
+
+    public function getAllTypes(): array
+    {
+        return $this->types;
     }
 
     private function getType($property)

@@ -3,7 +3,7 @@
 namespace gcf\database;
 
 use gcf\database\models\ResultSet;
-use gcf\database\models\taulaBD;
+use gcf\database\models\DataMapper;
 
 class filtreTaulaBD
 {
@@ -21,7 +21,7 @@ class filtreTaulaBD
      
       private $numJoin;
       
-      public function __construct(taulaBD $taula)
+      public function __construct(DataMapper $taula)
       {
              $this->query = null;
              $this->taula = $taula;
@@ -51,7 +51,7 @@ class filtreTaulaBD
                 array_push($this->fields, $fieldName);
       }
        
-      public function leftJoin(taulaBD $taulaJoin, $campJoinSrc, $campJoinDst)
+      public function leftJoin(DataMapper $taulaJoin, $campJoinSrc, $campJoinDst)
       {
              $this->joins .= "left join {$taulaJoin->nomTaula} on {$taulaJoin->nomTaula}.$campJoinSrc = $campJoinDst ";
       }

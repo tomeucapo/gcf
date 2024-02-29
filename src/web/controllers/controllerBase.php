@@ -2,21 +2,28 @@
 
 namespace gcf\web\controllers;
 
-use app\configurador;
 use gcf\ConfiguratorBase;
 use gcf\database\base_dades;
 use Laminas\Config\Config;
-use Zend_Log;
-
+use Laminas\Log\Logger;
+use stdClass;
+/**
+ * Class controllerBase
+ *
+ * This class defines controller base class. Its basic class that able to create new controllers for application.
+ * This clsas not support views only for basic controller like API controllers.
+ * Provides database connection context if is needed, logging context, application configuration context and basic
+ * filter input class that content incoming data from client.
+ */
 class controllerBase
 {
-    protected configurador $configurador;
+    protected ConfiguratorBase $configurador;
 
     protected base_dades $db;
 
-    public $logger;
+    public ?Logger $logger;
 
-    public \stdClass $filtres;
+    public stdClass $filtres;
 
     public $lastResult = null;
     public $lastResultType = null;
@@ -31,7 +38,7 @@ class controllerBase
         $this->masterConfig = $cfg->getConfig();
         $this->configurador = $cfg;
         $this->logger = $cfg->getLoggerObject();
-        $this->filtres = new \stdClass();
+        $this->filtres = new stdClass();
     }
 
     protected static function classBaseName() : string

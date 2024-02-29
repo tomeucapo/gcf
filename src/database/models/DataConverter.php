@@ -8,14 +8,19 @@
 
 namespace gcf\database\models;
 
+use DateTime;
+
 class DataConverter
 {
+    // TODO: A futur aquesta constant ha de desapareixer per agafar els parametres de configuració de BD
+    const DEFAULT_DB_DATE_FMT = 'd.m.Y';
+
     private string $tableName;
     private bool $swapDate;
     private ?string $generalWhere;
     public array $dataFields;
 
-    public function __construct(taulaBD $table, bool $swapDate = true)
+    public function __construct(DataMapper $table, bool $swapDate = true)
     {
             $this->tableName = $table->nomTaula;
             $this->generalWhere = null;
@@ -58,7 +63,7 @@ class DataConverter
 
     /**
      * Adding additional where condition on final generated sentence
-     * @param $cond
+     * @param string|null $cond
      */
     public function Where(?string $cond) : void
     {
@@ -70,6 +75,7 @@ class DataConverter
      * @param ConverterType $type
      * @param $dataXML
      * @return string
+     * @throws \Exception
      */
     public function XMLToSQL(ConverterType $type, $dataXML) : string
     {
@@ -81,9 +87,10 @@ class DataConverter
      * A partir dels camps tornats de la funcio tracta_xml generam la sentencia
      * SQL de la BD.
      *
-     * @param string $tipus Tipus de operació a generar
+     * @param ConverterType $tipus Tipus d'operació a generar
      * @param array $camps Llista de camps i els seus valors
      * @return string Sentencia SQL generada
+     * @throws \Exception
      */
     public function ArrayToSQL(ConverterType $tipus, array $camps): string
     {
@@ -95,22 +102,37 @@ class DataConverter
             $valor=str_replace("'", "''", $valor);
             $valor=str_replace("\'", "''", $valor);
 
-            if (trim($nom_camp)=='')
+            if (empty($nom_camp))
                 continue;
 
             $s_camps_db[] = $nom_camp;
 
-            if (trim($valor)!=='')
+            if (trim($valor)!=='')          // Use this comparsion instead empty because 0 values may confuse empty function
             {
                 if($this->swapDate)
                 {
-                    if(preg_match("/^([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4})/", $valor, $data))
+                    if(preg_match("/^([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4})$/", $valor,$data))
                     {
-                        if (preg_match("/([0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})$/", $valor, $hora))
-                            $valor = "'".trans_data($data[1])." ".$hora[1]."'";
-                        else $valor = "'".trans_data($data[1])."'";
-                    } else if($valor!=='?')                // Si un camp te per valor un ? �s que li passam un blob
-                        $valor = "'".$valor."'";
+                        $campData = DateTime::createFromFormat("d/m/Y", $data[1]);
+                        if ($campData === false)
+                            throw new \Exception("$data[1] Data incorrecte");
+
+                        $valorDataFmt = $campData->format(self::DEFAULT_DB_DATE_FMT);
+                        $valor = "'$valorDataFmt'";
+                    } else {
+                        if (preg_match("/^([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}).([0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})$/", $valor, $dataHora))
+                        {
+                            $campData = DateTime::createFromFormat("d/m/Y", $dataHora[1]);
+                            if ($campData === false)
+                                throw new \Exception("$dataHora[1] Data incorrecte");
+
+                            $valorDataFmt = $campData->format(self::DEFAULT_DB_DATE_FMT);
+			    $valor = "'$valorDataFmt $dataHora[2]'";
+                        } else {
+                            if($valor!=='?')                // Si un camp te per valor un? és que li passam un blob
+                                $valor = "'".$valor."'";
+                        }
+                    }
                 }
                 else $valor = "'".$valor."'";
             }

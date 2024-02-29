@@ -16,14 +16,12 @@ use gcf\database\base_dades;
 use gcf\database\consulta_sql;
 use gcf\database\drivers\errorQuerySQL;
 use gcf\database\errorDriverDB;
-use Zend_Log;
-
-include_once "utils/utils.php";
+use Laminas\Log\Logger;
 
 /**
  * Class taulaBD
  */
-abstract class taulaBD
+abstract class DataMapper
 {
     /**
      * Objecte de connexió a bbdd
@@ -34,7 +32,7 @@ abstract class taulaBD
     protected $primaryKey;
     protected $tipusPK;
 
-    protected ?Zend_Log $logger;
+    protected ?Logger $logger;
 
     /**
      * @var String
@@ -151,7 +149,7 @@ abstract class taulaBD
         $this->camps = [];
     }
 
-    public function setLogger(Zend_Log $logger) : void
+    public function setLogger(Logger $logger) : void
     {
         $this->logger = $logger;
     }

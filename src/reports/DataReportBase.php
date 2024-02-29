@@ -15,6 +15,7 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use stdClass;
 
 abstract class DataReportBase implements DataReport
 {
@@ -38,32 +39,24 @@ abstract class DataReportBase implements DataReport
             "color" => ['rgb' => 'FFFFFF']]
     ];
 
-        public $filtres;
+        public stdClass $filtres;
         
-        protected $name;
-        private $title, $subtitles;
+        protected string $name;
+        private string $title;
+        private array $subtitles = [];
 
-    /**
-     * @var array
-     */
-        private $footerText;
+        private array $footerText;
 
-    /**
-     * @var cachePlugin
-     */
-        private $cache;
+        private ?cachePlugin $cache = null;
 
-        /**
-         *    @var base_dades
-         */
-        protected $db;
+        protected base_dades $db;
 
-        /**
-        * @var ReportHeaders
-        */
-        protected $header;
+        protected ReportHeaders $header;
 
-        protected $data, $typeOut, $metaInfo;
+        protected array $data;
+
+        protected array $metaInfo=[];
+        protected int $typeOut;
 
         protected configurador $configurador;
         private string $orientation;
@@ -149,7 +142,7 @@ abstract class DataReportBase implements DataReport
                $this->subtitles[] = $subTitle;
         }
         
-        protected function addData($data) : void
+        protected function addData(array $data) : void
         {
                // Pasam a UTF-8 per que les funcions json_encode necessita dades en format UTF-8
            
@@ -224,17 +217,17 @@ abstract class DataReportBase implements DataReport
                   $sheet->getHeaderFooter()->setEvenFooter('&L&B' . $objExcel->getProperties()->getTitle() . '&RPagina &P of &N (&D &T)');
 
                   $col = 1; $row = 1;
-                  $sheet->mergeCellsByColumnAndRow($col, $row, $col+5, $row);
-                  $sheet->setCellValueByColumnAndRow($col, $row++, $this->title);                  
+                  $sheet->mergeCells("A".$row.":"."E".$row);
+                  $sheet->setCellValue("A".$row++, $this->title);
                   $sheet->getStyle('A1')->getFont()->setSize(20);
                   $sheet->getStyle('A1')->getFont()->setBold(true);
                   $sheet->getStyle('A1')->applyFromArray($cellStyles);
 
                   foreach ($this->subtitles as $sub)
                   {
-                           $sheet->setCellValueByColumnAndRow($col, $row, $sub);
-                           $sheet->mergeCellsByColumnAndRow($col, $row, $col+5, $row);
-                           $sheet->getStyleByColumnAndRow($col, $row)->applyFromArray($cellStyles);
+                           $sheet->setCellValue("A".$row, $sub);
+                           $sheet->mergeCells("A".$row.":"."E".$row);
+                           $sheet->getStyle("A".$row)->applyFromArray($cellStyles);
                            $row++;
                   }
                   $row++;
@@ -245,9 +238,12 @@ abstract class DataReportBase implements DataReport
                   foreach ($colDefs as $headerDef)
                   {
                            $def = $headerDef->props;
-                           $sheet->setCellValueByColumnAndRow($col, $row, strip_tags($def["label"]));
-                           $sheet->getStyleByColumnAndRow($col, $row)->applyFromArray($cellStylesHeaders);
-                           $sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
+                           $sheet->setCellValue([$col, $row], strip_tags($def["label"]));
+			   
+			   // TODO: S'ha de canviar el A per l'equivalencia de $col
+			   $sheet->getStyle("A".$row)->applyFromArray($cellStylesHeaders);
+			
+			   $sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
                            $col++;
                   }
 
@@ -263,25 +259,25 @@ abstract class DataReportBase implements DataReport
                            {
                                   // TODO: Review this str_replace, is dirty trick!
 
-                                  $sheet->getStyleByColumnAndRow($col, $row)->applyFromArray(self::$cellStylesDetails);
+                                  $sheet->getStyle([$col, $row])->applyFromArray(self::$cellStylesDetails);
                                   if ($colDefs[$col-1]->type === ReportColumn::NUMBER_FORMAT)
                                   {
-                                      $sheet->getStyleByColumnAndRow($col, $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
-                                      $sheet->setCellValueByColumnAndRow($col, $row, str_replace(",",".",$reg[$field]));
+                                      $sheet->getStyle([$col, $row])->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+                                      $sheet->setCellValue([$col, $row], str_replace(",",".",$reg[$field]));
                                   } else {
                                       if ($colDefs[$col-1]->props["formatter"] === "currencyEur")
-                                          $sheet->getStyleByColumnAndRow($col, $row)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+                                          $sheet->getStyle([$col, $row])->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
                                       else
                                           if ($colDefs[$col-1]->props["className"] === "align-right")
-                                              $sheet->getStyleByColumnAndRow($col, $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                                              $sheet->getStyle([$col, $row])->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                                           else
-                                              $sheet->getStyleByColumnAndRow($col, $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                                      $sheet->setCellValueByColumnAndRow($col, $row, $reg[$field]);
+                                              $sheet->getStyle([$col, $row])->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                                      $sheet->setCellValue([$col, $row], $reg[$field]);
                                   }
 
                                   if ($row%2)
-                                      $sheet->getStyleByColumnAndRow($col, $row)->getFill()->getStartColor()->setRGB("F1F1F1");
-                                  else $sheet->getStyleByColumnAndRow($col, $row)->getFill()->getStartColor()->setRGB("E1E1E1");
+                                      $sheet->getStyle([$col, $row])->getFill()->getStartColor()->setRGB("F1F1F1");
+                                  else $sheet->getStyle([$col, $row])->getFill()->getStartColor()->setRGB("E1E1E1");
 
                                   $col++;
                            }
@@ -291,9 +287,12 @@ abstract class DataReportBase implements DataReport
                   $col = 1;$row++;$rowIni = $row;
                   foreach ($this->footerText as $txt)
                   {
-                      $sheet->setCellValueByColumnAndRow($col, $row, $txt);
-                      $sheet->mergeCellsByColumnAndRow($col, $row, $col+5, $row);
-                      $sheet->getStyleByColumnAndRow($col, $row)->applyFromArray($cellStyles);
+                      $sheet->setCellValue([$col, $row], $txt);
+
+                      //$sheet->mergeCells("A".$row.":"."E".$row);
+
+                      $sheet->mergeCells([$col, $row, $col+5, $row]);
+                      $sheet->getStyle([$col, $row])->applyFromArray($cellStyles);
                       $sheet->getColumnDimensionByColumn($col)->setAutoSize(true);
                       if ($row%5 === 0) {
                           $col += 6;

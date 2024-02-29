@@ -16,12 +16,10 @@ use gcf\tasks\taskPlugin;
 use gcf\web\templates\templateEngine;
 use Laminas;
 use Laminas\Config\Config;
+use Laminas\Log\Logger;
 use Laminas\ServiceManager\ServiceManager;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Zend_Log;
-
-require_once "Zend/Log.php";
 
 abstract class ConfiguratorBase
 {
@@ -90,9 +88,6 @@ abstract class ConfiguratorBase
         try {
             $dbMain = $this->config->general->maindb;
             $dbPool = connectionPool::getInstance();
-            if (!$dbPool)
-                throw new \Exception("ERROR Configurador: El pool de connexions de bases de dades no s'ha inicialitzat correctament!");
-
             $this->db = $dbPool->$dbMain->getConnection();
         } catch (errorDriverDB $e) {
             error_log($e->getMessage());
@@ -100,19 +95,28 @@ abstract class ConfiguratorBase
         }
     }
 
+    private function InitLogger(string $loggerName) : Laminas\Log\Logger
+    {
+        $logOptions = $this->config->logging->$loggerName;
+
+        $writer = new Laminas\Log\Writer\Stream($logOptions->log->writerParams->stream);
+        $filter = new Laminas\Log\Filter\Priority($logOptions->log->filterParams->priority, $logOptions->log->filterParams->operator);
+        $writer->addFilter($filter);
+
+        $logger = new Laminas\Log\Logger();
+        $logger->addWriter($writer);
+
+        return $logger;
+    }
+
     /**
      * Initialize all loggers configured into configuration file
      */
     private function initLoggers() : void
     {
-        try {
-            $loggers = explode(",", $this->config->logging->loggers);
-            foreach ($loggers as $loggerName) {
-                $logOptions = $this->config->logging->$loggerName;
-                $this->serviceManager->setService("logger." . $loggerName, Zend_Log::factory($logOptions->toArray()));
-            }
-        } catch (\Zend_Log_Exception $e) {
-            error_log("Logger init error: " . $e->getMessage());
+        $loggers = explode(",", $this->config->logging->loggers);
+        foreach ($loggers as $loggerName) {
+            $this->serviceManager->setService("logger." . $loggerName, $this->InitLogger($loggerName)); //Zend_Log::factory($logOptions->toArray()));
         }
     }
 
@@ -171,9 +175,9 @@ abstract class ConfiguratorBase
     /**
      * Get logger instance
      * @param string|null $loggerName
-     * @return ?Zend_Log
+     * @return ?Logger
      */
-    public function getLoggerObject(?string $loggerName = null) : ?Zend_Log
+    public function getLoggerObject(?string $loggerName = null) : ?Logger
     {
             if ($loggerName === null) {
                 $loggerName = "logger." . $this->accio;
@@ -187,7 +191,7 @@ abstract class ConfiguratorBase
 
             try {
                 $objLogger = $this->serviceManager->get($loggerName);
-                if ($objLogger instanceof Zend_Log)
+                if ($objLogger instanceof Logger)
                     return $objLogger;
             } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
                 error_log("Can't get logger $loggerName: ".$e->getMessage());

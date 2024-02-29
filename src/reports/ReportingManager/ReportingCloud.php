@@ -3,6 +3,7 @@
 namespace gcf\reports\ReportingManager;
 
 use app\configurador;
+use Laminas\Log\Logger;
 
 class ReportingCloud implements ReportingManagerInterface
 {
@@ -12,14 +13,9 @@ class ReportingCloud implements ReportingManagerInterface
 
     private string $tmpDir;
 
-    /**
-     * @var string
-     */
     private string $reportName;
-    /**
-     * @var \Zend_Log|null
-     */
-    private $logger;
+
+    private Logger $logger;
 
     /**
      * @throws \Exception

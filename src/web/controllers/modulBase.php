@@ -14,12 +14,18 @@ use Laminas\Json\Json;
 
 /**
  * Class modulBase
+ * This class defines basic module of application. This is a application controller that used for combines model and view to present
+ * data to user as different responses HTML, JSON, ...
  */
 abstract class modulBase extends controllerBase implements modul
 {
     use modulConfig;
 
-    protected $config;
+    /**
+     * Stores local module configuration if exists into cfg directory
+     * @var array
+     */
+    protected array $config = [];
 
     /**
      * @var templateEngine
@@ -27,10 +33,15 @@ abstract class modulBase extends controllerBase implements modul
     protected templateEngine $tmpl;
 
     /**
+     * List of templates for different module views
      * @var array
      */
     protected array $templates;
 
+    /**
+     * List of years that exists in module database table
+     * @var array
+     */
     public array $anys_disponibles = [];
 
     public function __construct(ConfiguratorBase $cfg, $name = "", $withTemplate = true, $tmplEngineName = "")

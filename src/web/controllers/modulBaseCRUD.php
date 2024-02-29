@@ -2,7 +2,7 @@
 
 namespace gcf\web\controllers;
 
-use gcf\database\drivers\errorQuerySQL;;
+use gcf\database\drivers\errorQuerySQL;
 use gcf\database\errorDriverDB;
 use gcf\database\models\noDataFound;
 use gcf\database\models\noPrimaryKey;
@@ -48,6 +48,7 @@ trait modulBaseCRUD
     #[AcceptVerbs(WSMethod::PUT)]
     public function Modificar($id, array $data)
     {
+        $this->tbl->camps = $data;
         $this->Modifica($id, $data);
     }
 

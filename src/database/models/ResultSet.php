@@ -20,7 +20,7 @@ class ResultSet implements Iterator
     private int $position = 0;
     private consulta_sql $query;
     private mixed $pk;
-    private array $types;
+    protected array $types;
 
     public function __construct(consulta_sql $query, mixed $pk)
     {

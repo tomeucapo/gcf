@@ -73,6 +73,27 @@ class DropDown
     }
 
 
+    public static function selectMultiple(string $title, string $fieldName, string $changeEvent, array $list, array $selectedValues=null,
+                                  bool $showCode=false, ?int $defaultWidth=null, int $size=8): string
+    {
+        $strChgEvent = "";
+        if (!empty($changeEvent))
+            $strChgEvent = "onChange='$changeEvent'";
+
+        $styleWidth = $defaultWidth !== null ? 'style="width: '.$defaultWidth.'px"' : "";
+
+        $out = "<label for=\"{$fieldName}\">{$title}</label><select size=\"{$size}\" name=\"{$fieldName}\" id=\"{$fieldName}\" $strChgEvent multiple $styleWidth>";
+
+        foreach ($list as $id => $item)
+        {
+            $selected = in_array($id, $selectedValues) ? "selected" : "";
+            $out.="<option value=\"$id\" $selected>".($showCode ? $id : "")." $item </option>";
+        }
+        $out.="</select>";
+        return $out;
+    }
+
+
     /**
      * Mètode pensat per a ser utilitzat amb arrays indexats [0,1,..,n] on feim que l'atribut value del dropdown
      * sigui el mateix que el camp mostrat a l'usuari. Per defecte selecciona el valor indicat al paràmetre selected

@@ -3,9 +3,9 @@
 namespace gcf\database;
 
 use gcf\database\models\Record;
-use gcf\database\models\taulaBD;
+use gcf\database\models\DataMapper;
 
-abstract class ModelBase extends taulaBD implements ModelInterface
+abstract class ModelBase extends DataMapper implements ModelInterface
 {
     /**
      * @var Record

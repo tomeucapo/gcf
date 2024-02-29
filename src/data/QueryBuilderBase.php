@@ -4,6 +4,7 @@ namespace gcf\data;
 
 use app\configurador;
 use gcf\cache\cachePlugin;
+use Laminas\Log\Logger;
 
 abstract class QueryBuilderBase implements QueryBuilderInterface
 {
@@ -11,20 +12,11 @@ abstract class QueryBuilderBase implements QueryBuilderInterface
 
     protected \stdClass $filtres;
 
-    /**
-     * @var configurador
-     */
     protected configurador $configurador;
 
-    /**
-     * @var cachePlugin
-     */
     protected cachePlugin $cache;
 
-    /**
-     * @var \Zend_Log|null
-     */
-    protected $logger;
+    protected ?Logger $logger;
 
     public function __construct(\stdClass $filtres)
     {
