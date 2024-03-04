@@ -127,7 +127,7 @@ class DataConverter
                                 throw new \Exception("$dataHora[1] Data incorrecte");
 
                             $valorDataFmt = $campData->format(self::DEFAULT_DB_DATE_FMT);
-			    $valor = "'$valorDataFmt $dataHora[2]'";
+			                $valor = "'$valorDataFmt $dataHora[2]'";
                         } else {
                             if($valor!=='?')                // Si un camp te per valor un? és que li passam un blob
                                 $valor = "'".$valor."'";
