@@ -4,7 +4,7 @@ namespace gcf\reports;
 
 use app\configurador;
 use gcf\cache\cachePlugin;
-use gcf\database\base_dades;
+use gcf\database\DatabaseConnector;
 use gcf\web\ws\JSONEncodingError;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -49,7 +49,7 @@ abstract class DataReportBase implements DataReport
 
         private ?cachePlugin $cache = null;
 
-        protected base_dades $db;
+        protected DatabaseConnector $db;
 
         protected ReportHeaders $header;
 
@@ -62,7 +62,7 @@ abstract class DataReportBase implements DataReport
         private string $orientation;
         private int $pageSize;
 
-        public function __construct(base_dades $db, $name, cachePlugin $cache=null, $type = self::JSON_OUT)
+        public function __construct(DatabaseConnector $db, $name, cachePlugin $cache=null, $type = self::JSON_OUT)
         {
                $this->title = "";
                $this->name = $name;

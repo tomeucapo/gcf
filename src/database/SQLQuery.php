@@ -1,35 +1,25 @@
 <?php
-/**
- * Database SQL query class manager
- * User: tomeu
- * Date: 4/5/2018
- * Time: 11:41 AM
- */
-
 namespace gcf\database;
 
 use gcf\cache\cachePlugin;
-use PDO;
+use gcf\database\drivers\errorQuerySQL;
+use gcf\database\drivers\queryBase;
+use stdClass;
 
 class SQLQuery
 {
     /**
      * Query object
-     * @var PDO
+     * @var queryBase
      */
-    private $consulta;
+    private queryBase $consulta;
 
     /**
-     * @var \PDOStatement
+     * @var ?cachePlugin
      */
-    private $stmt;
+    private ?cachePlugin $cache = null;
 
-    /**
-     * @var cachePlugin
-     */
-    private $cache;
-
-    private $autoFlush;
+    private bool $autoFlush;
 
     private $queryObj, $firmaLastQuery, $rowCount;
     public $row, $assoc;
@@ -37,17 +27,22 @@ class SQLQuery
     /**
      * @var bool
      */
-    private $initialGet;
+    private bool $initialGet;
 
     /**
      * consulta_sql constructor.
      * @param DatabaseConnector $db
      * @param cachePlugin|null $cache
      * @param bool $autoFlush
+     * @throws errorDriverDB
      */
-    public function __construct(DatabaseConnector $db, cachePlugin $cache=null, $autoFlush=false)
+    public function __construct(DatabaseConnector $db, ?cachePlugin $cache = null, bool $autoFlush = false)
     {
-        $this->consulta = $db->endoll_db();
+        $className = "gcf\\database\\drivers\\$db->drv\\QuerySQL";
+        if (!class_exists($className))
+            throw new errorDriverDB("No trob el driver $className");
+
+        $this->consulta = new $className($db->dataBase);
 
         if (!empty($cache))
             $this->cache = $cache;
@@ -57,24 +52,31 @@ class SQLQuery
         $this->initialGet = false;
     }
 
-    private function extractFieldTypes()
+    private function extractFieldTypes(): array
     {
         $rowTypes = [];
-        for ($i = 0; $i < count($this->consulta->row); $i++)
-        {
+        for ($i = 0; $i < count($this->consulta->row); $i++) {
             $rowTypes[] = ["TYPE" => $this->consulta->GetFieldType($i),
-                        "NAME" => $this->consulta->GetFieldName($i)];
+                "NAME" => $this->consulta->GetFieldName($i),
+                "LENGTH" => $this->consulta->GetFieldLength($i)];
         }
         return $rowTypes;
     }
 
+    public function PrepareQuery(string $query, bool $assoc=true) : void
+    {
+        $this->consulta->assoc = $assoc;
+        $this->consulta->query = $query;
+    }
+
     /**
-     * @param $query
+     * @param string $query
      * @param bool $assoc
-     * @return null
-     * @throws \errorQuerySQL
+     * @return mixed
+     *
+     * @throws errorQuerySQL
      */
-    public function fer_consulta($query, $assoc=false)
+    public function fer_consulta(string $query, bool $assoc=false)
     {
         $this->consulta->assoc = $assoc;
         $resCons = null;
@@ -90,10 +92,10 @@ class SQLQuery
             {
                 $this->initialGet = true;
                 $resCons = $this->consulta->Query($query);
-                $queryObj = new \stdClass;
+                $queryObj = new stdClass;
                 $queryObj->consulta = $this->consulta;
                 $queryObj->rowTypes = $this->extractFieldTypes();
-                $queryObj->allRows = [ $this->stmt->fetch($this->assoc ? PDO::FETCH_ASSOC : PDO::FETCH_NUM ) ];
+                $queryObj->allRows = [ $this->consulta->row ];
                 $this->cache->set($this->firmaLastQuery, $queryObj);
                 $this->queryObj = $queryObj;
             } else {
@@ -110,12 +112,13 @@ class SQLQuery
 
     /**
      * @param bool $assoc
-     * @return bool|null
-     * @throws \errorQuerySQL
+     * @return bool|mixed
+     * @throws errorQuerySQL
      */
     public function executa($assoc=false)
     {
-        // TODO
+        if (isset($this->consulta))
+            return $this->fer_consulta($this->consulta->query, $assoc);
         return false;
     }
 
@@ -144,25 +147,24 @@ class SQLQuery
         {
             if ($this->initialGet)
             {
-                $row = $this->stmt->fetch($this->assoc ? PDO::FETCH_ASSOC : PDO::FETCH_NUM );
-                if ($row !== false) {
-                    $this->queryObj->allRows[] = $row;
+                $this->consulta->Skip();
+                if (!$this->consulta->Eof()) {
+                    $this->queryObj->allRows[] = $this->consulta->row;
                 }
-                $this->row = $row;
+                $this->row = $this->consulta->row;
             } else {
                 $this->row = $this->queryObj->allRows[$this->rowCount++];
             }
         }
         else
         {
-            $this->row = $this->stmt->fetch($this->assoc ? PDO::FETCH_ASSOC : PDO::FETCH_NUM );
+            $this->consulta->Skip();
+            $this->row = $this->consulta->row;
         }
     }
 
     public function Record()
     {
-        return 0;
-        /*
         if (isset($this->cache))
         {
             if ($this->initialGet)
@@ -171,7 +173,6 @@ class SQLQuery
         }
 
         return $this->consulta->Record();
-    */
     }
 
     public function LastRecord()
@@ -179,16 +180,15 @@ class SQLQuery
         if (isset($this->cache))
         {
             if ($this->initialGet)
-                return $this->stmt->rowCount();
+                return $this->consulta->LastRecord();
             return (count($this->queryObj->allRows));
         }
 
-        return $this->stmt->rowCount();
+        return $this->consulta->LastRecord();
     }
-/*
-    public function TipusField($numField)
-    {
 
+    public function TipusField(int $numField)
+    {
         if (isset($this->cache))
         {
             if ($numField>count($this->queryObj->rowTypes))
@@ -196,10 +196,10 @@ class SQLQuery
             return $this->queryObj->rowTypes[$numField]["TYPE"];
         }
 
-        return $this->stmt->getColumnMeta($numField);
+        return $this->consulta->GetFieldType($numField);
     }
 
-    public function NomField($numField)
+    public function NomField(int $numField)
     {
         if (isset($this->cache))
         {
@@ -211,39 +211,51 @@ class SQLQuery
         return $this->consulta->GetFieldName($numField);
     }
 
-    public function RelacioField($numRow)
+    public function LenField(int $numField)
     {
-        //return $this->consulta->GetFieldRelation($numRow);
+        if (isset($this->cache))
+        {
+            if ($numField>count($this->queryObj->rowTypes))
+                return null;
+            return $this->queryObj->rowTypes[$numField]["LENGTH"];
+        }
+
+        return $this->consulta->GetFieldLength($numField);
     }
-*/
+
+    public function RelacioField(int $numRow)
+    {
+        return $this->consulta->GetFieldRelation($numRow);
+    }
+
     public function NumFields()
     {
-        return $this->stmt->columnCount();
+        return $this->consulta->NumFields();
     }
 
     public function carregarBLOB($blobID)
     {
-       //  return $this->consulta->LoadFromBLOB($blobID);
+        return $this->consulta->LoadFromBLOB($blobID);
     }
 
-    public function guardaImatge($fileName)
+    public function guardaImatge(string $fileName)
     {
-       // return $this->consulta->StoreFileToBLOB($fileName);
+        return $this->consulta->StoreFileToBLOB($fileName);
     }
 
     public function iniciTrans()
     {
-        return $this->consulta->beginTransaction();
+        return $this->consulta->BeginTrans();
     }
 
-    public function ferRollback()
+    public function ferRollback($idTrans=null)
     {
-        return $this->consulta->Rollback();
+        return $this->consulta->Rollback($idTrans);
     }
 
-    public function ferCommit()
+    public function ferCommit($idTrans=null)
     {
-        return $this->consulta->Commit();
+        return $this->consulta->Commit($idTrans);
     }
 
     public function tanca_consulta()
@@ -253,6 +265,7 @@ class SQLQuery
                 $this->cache->set($this->firmaLastQuery, $this->queryObj);
             }
         }
+        $this->consulta->Close();
     }
 
     public function nextID($genID)
@@ -275,5 +288,6 @@ class SQLQuery
         if (isset($this->cache) && !$this->initialGet && $this->autoFlush) {
             $this->cache->delete($this->firmaLastQuery);
         }
+        $this->consulta->Close();
     }
 }

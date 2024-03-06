@@ -19,9 +19,9 @@ class connectionDb
     public $user, $passwd, $role;
 
     /**
-     * @var base_dades
+     * @var DatabaseConnector
      */
-    private base_dades $conn;
+    private DatabaseConnector $conn;
 
     /**
      * connectionDb constructor.
@@ -63,15 +63,15 @@ class connectionDb
 
     /**
      * @param ConnectionMode $mode Mode of connection P = Persistent / N = Non-persistent
-     * @return base_dades
+     * @return DatabaseConnector
      * @throws errorDriverDB
      * @throws errorDatabaseConnection
      * @throws errorDatabaseAutentication
      */
-    public function getConnection(ConnectionMode $mode = ConnectionMode::NORMAL) : base_dades
+    public function getConnection(ConnectionMode $mode = ConnectionMode::NORMAL) : DatabaseConnector
     {
         if (!isset($this->conn))
-            $this->conn = new base_dades($this->connStr, $this->user, $this->passwd, $mode, $this->type, $this->role);
+            $this->conn = new DatabaseConnector($this->connStr, $this->user, $this->passwd, $mode, $this->type, $this->role);
         return $this->conn;
     }
 

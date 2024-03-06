@@ -8,7 +8,7 @@
 
 namespace gcf\database\models;
 
-use gcf\database\consulta_sql;
+use gcf\database\SQLQuery;
 use gcf\database\drivers\errorQuerySQL;
 use Iterator;
 
@@ -18,11 +18,11 @@ use Iterator;
 class ResultSet implements Iterator
 {
     private int $position = 0;
-    private consulta_sql $query;
+    private SQLQuery $query;
     private mixed $pk;
     protected array $types;
 
-    public function __construct(consulta_sql $query, mixed $pk)
+    public function __construct(SQLQuery $query, mixed $pk)
     {
         $this->query = $query;
         $this->pk = $pk;

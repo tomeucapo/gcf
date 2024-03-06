@@ -4,10 +4,7 @@ namespace gcf\data\importers;
 
 class DataIterator implements \Iterator
 {
-    /**
-     * @var excelImport
-     */
-    private $data;
+    private excelImport $data;
 
     public function __construct(excelImport $data)
     {
@@ -17,10 +14,10 @@ class DataIterator implements \Iterator
     /**
      * Return the current element
      * @link http://php.net/manual/en/iterator.current.php
-     * @return mixed Can return any type.
+     * @return int Can return any type.
      * @since 5.0.0
      */
-    public function current()
+    public function current() : int
     {
         return $this->data->getRow();
     }
@@ -31,7 +28,7 @@ class DataIterator implements \Iterator
      * @return void Any returned value is ignored.
      * @since 5.0.0
      */
-    public function next()
+    public function next() : void
     {
         $this->data->skip();
     }
@@ -39,10 +36,10 @@ class DataIterator implements \Iterator
     /**
      * Return the key of the current element
      * @link http://php.net/manual/en/iterator.key.php
-     * @return mixed scalar on success, or null on failure.
+     * @return int scalar on success, or null on failure.
      * @since 5.0.0
      */
-    public function key()
+    public function key() : int
     {
         return $this->data->rowNum();
     }
@@ -50,11 +47,11 @@ class DataIterator implements \Iterator
     /**
      * Checks if current position is valid
      * @link http://php.net/manual/en/iterator.valid.php
-     * @return boolean The return value will be casted to boolean and then evaluated.
+     * @return boolean The return value will be cast to boolean and then evaluated.
      * Returns true on success or false on failure.
      * @since 5.0.0
      */
-    public function valid()
+    public function valid() : bool
     {
         return !$this->data->eof();
     }
@@ -65,7 +62,7 @@ class DataIterator implements \Iterator
      * @return void Any returned value is ignored.
      * @since 5.0.0
      */
-    public function rewind()
+    public function rewind() : void
     {
         $this->data->goTop();
     }

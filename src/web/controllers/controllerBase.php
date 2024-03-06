@@ -3,7 +3,7 @@
 namespace gcf\web\controllers;
 
 use gcf\ConfiguratorBase;
-use gcf\database\base_dades;
+use gcf\database\DatabaseConnector;
 use Laminas\Config\Config;
 use Laminas\Log\Logger;
 use stdClass;
@@ -19,7 +19,7 @@ class controllerBase
 {
     protected ConfiguratorBase $configurador;
 
-    protected base_dades $db;
+    protected DatabaseConnector $db;
 
     public ?Logger $logger;
 

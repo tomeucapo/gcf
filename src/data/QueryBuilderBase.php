@@ -4,11 +4,12 @@ namespace gcf\data;
 
 use app\configurador;
 use gcf\cache\cachePlugin;
+use gcf\database\models\DataMapper;
 use Laminas\Log\Logger;
 
 abstract class QueryBuilderBase implements QueryBuilderInterface
 {
-    protected $tbl;
+    protected ?DataMapper $tbl = null;
 
     protected \stdClass $filtres;
 

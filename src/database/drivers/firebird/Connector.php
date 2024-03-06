@@ -24,7 +24,8 @@ class Connector extends dataBaseConn
      * @throws errorDatabaseDriver
      * @throws errorDatabaseAutentication
      */
-    public function __construct(string $cadConn, string $user, string $passwd, string $my_role = "", ConnectionMode $mode = ConnectionMode::NORMAL)
+
+    public function __construct(string $cadConn, string $user, string $passwd, ?string $my_role = "", ConnectionMode $mode = ConnectionMode::NORMAL)
     {
         $this->funcConn = ($mode === ConnectionMode::NORMAL) ? "ibase_connect" : "ibase_pconnect";
         if (!function_exists($this->funcConn))

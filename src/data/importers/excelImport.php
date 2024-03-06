@@ -4,6 +4,7 @@ namespace gcf\data\importers;
 
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 /**
  * Class excelImport
@@ -11,13 +12,17 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
  */
 abstract class excelImport
 {
-    protected $iniFila, $iniCol, $pRow;
-    private $sheet;
-    private $highestRow, $highestColumn;
+    protected string $iniCol = 'A';
+    protected int $iniFila, $pRow;
+
+    private Worksheet $sheet;
+
+    private int $highestRow;
+    private string $highestColumn;
 
     /**
      * excelImportNew constructor.
-     * @param $nomFitxer
+     * @param string $nomFitxer
      * @param int $sheetNum
      * @throws \Exception
      */
@@ -37,7 +42,7 @@ abstract class excelImport
     /**
      * @return string
      */
-    public function getNumCols(): string
+    public function GetHighestCol(): string
     {
         return $this->highestColumn;
     }
@@ -47,18 +52,18 @@ abstract class excelImport
      * @return mixed
      * @throws Exception
      */
-    public function getCell($cellId)
+    public function getCell($cellId) : mixed
     {
         return $this->sheet->getCell($cellId)->getValue();
     }
 
     /**
      * Ens torna la fila actual o bé la seleccionada
-     * @param null $col
-     * @param null $row
+     * @param ?string $col
+     * @param ?int $row
      * @return mixed
      */
-    public function getRow($col = null, $row = null)
+    public function getRow(?string $col = null, ?int $row = null) : mixed
     {
         $colIni = ($col !== null) ? $col : $this->iniCol;
         $row = ($row !== null) ? $row : $this->pRow;
@@ -78,7 +83,7 @@ abstract class excelImport
     /**
      * Salta a la següent fila
      */
-    public function skip()
+    public function skip() : void
     {
         if ($this->pRow <= $this->highestRow)
             $this->pRow++;
@@ -87,7 +92,7 @@ abstract class excelImport
     /**
      * Es posa a la primera fila de dades
      */
-    public function goTop()
+    public function goTop() : void
     {
         $this->pRow = $this->iniFila;
     }
@@ -95,7 +100,7 @@ abstract class excelImport
     /**
      * Ens torna la fila actual
      */
-    public function rowNum()
+    public function rowNum() : int
     {
         return $this->pRow;
     }

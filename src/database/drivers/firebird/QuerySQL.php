@@ -11,7 +11,7 @@ class QuerySQL extends queryBase
 {
       private bool $myEof = false;
 
-      protected $hndTrans;
+      protected mixed $hndTrans;
 
       public function __construct(dataBaseConn $db)
       {
@@ -133,12 +133,12 @@ class QuerySQL extends queryBase
             return $info_field['length'];
       }
 
-      protected function StoreBLOB($fileDescriptor)
+      protected function StoreBLOB($fileDescriptor) : false | string
       {
             return @ibase_blob_import($this->connDb, $fileDescriptor);
       }
       
-      public function LoadFromBLOB($rowBlob)
+      public function LoadFromBLOB($rowBlob) : false|string
       {
             $data = '';            
             $blobHandler = @ibase_blob_open($this->connDb, $rowBlob);

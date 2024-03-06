@@ -47,14 +47,15 @@ class DataBaseService extends DataBaseServiceBase
      * @param string $cn
      * @throws errorAddUser
      */
-    public function AddUser(string $userName, string $passwd, string $cn)
+    public function AddUser(string $userName, string $passwd, string $cn) : void
     {
-           if (!($result = ibase_add_user($this->service, $userName, $passwd, $cn)))
+           if (!ibase_add_user($this->service, $userName, $passwd, $cn))
                throw new errorAddUser(ibase_errmsg());
     }
 
     /**
      * @param string $userName
+     * @throws errorDelUser
      */
     public function DelUser(string $userName) : void
     {

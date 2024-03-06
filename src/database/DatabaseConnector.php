@@ -1,108 +1,109 @@
 <?php
-/**
- * DatabaseConnector class
- * User: tomeu
- * Date: 4/5/2018
- * Time: 11:38 AM
- */
 
 namespace gcf\database;
 
-use PDO;
+use gcf\database\drivers\dataBaseConn;
+use gcf\database\drivers\DataBaseService;
 
 class DatabaseConnector
 {
     /**
      * Database connection object
-     * @var PDO
+     * @var DataBaseConn
      */
-    public $dataBase;
+      public DataBaseConn $dataBase;
 
     /**
      * Database driver name
      * @var string
      */
-    public $drv;
+      public string $drv;
 
-    private $cadConn, $user, $passwd, $myRole, $className, $service, $mode;
-    /**
-     * @var bool
-     */
-    private $autoFlushCache;
+      private string $cadConn, $user, $passwd, $className;
+
+      private ConnectionMode $mode;
+
+      private string $myRole = "";
+
+      private ?DataBaseService $service = null;
+
+      public bool $autoFlushCache = false;
 
     /**
-     * DatabaseConnector constructor.
-     * @param $cadConn
-     * @param $user
-     * @param $passwd
-     * @param string $mode
+     * @param string $cadConn
+     * @param string $user
+     * @param string $passwd
+     * @param ConnectionMode $mode
      * @param string $drv
-     * @param string $my_role
+     * @param ?string $my_role
      * @throws errorDriverDB
      */
-    public function __construct($cadConn, $user, $passwd, $mode="N", $drv="firebird", $my_role="")
-    {
-        if (empty($drv))
-            throw new errorDriverDB("No s'ha especificat el driver de base de dades a instanciar!");
 
-        if (!empty($my_role) && $drv === "firebird")
-            $cadConn.=",role=$my_role";
+      public function __construct(string $cadConn, string $user, string $passwd, ConnectionMode $mode=ConnectionMode::NORMAL, string $drv="firebird", ?string $my_role="")
+      {
+			 if (empty($drv))
+				throw new errorDriverDB("No s'ha especificat el driver de base de dades a instanciar!");
 
-        $this->dataBase = new PDO("{$drv}:{$cadConn}", $user, $passwd);
+             $this->drv = strtolower($drv);
+             $this->className = "gcf\\database\\drivers\\$this->drv\\Connector";
+             if(!class_exists($this->className))
+				throw new errorDriverDB("Hi ha problemes per instanciar la classe del driver de BBDD $this->className");
 
-        $this->drv = $drv;
-        $this->cadConn = $cadConn;
-        $this->user = $user;
-        $this->passwd = $passwd;
-        $this->myRole = $my_role;
+			 $this->cadConn = $cadConn;
+			 $this->user = $user;
+		     $this->passwd = $passwd;
 
-        if ($mode != 'P' && $mode != 'N')
-            throw new errorDriverDB("Mode de connexio incorrecte, nomes pot esser P o N");
+             if (!empty($my_role))
+			    $this->myRole = $my_role;
 
-        $this->mode = $mode;
-        $this->autoFlushCache = false;
+			 $this->mode = $mode;
 
-        $this->connecta();
-    }
+			 $this->connecta();
+      }
 
-    private function connecta()
-    {
-        $this->dataBase = new PDO("{$this->drv}:{$this->cadConn}", $this->user, $this->passwd);
-    }
+	  private function connecta() : void
+	  {
+             $this->dataBase = new $this->className($this->cadConn, $this->user, $this->passwd, $this->myRole, $this->mode);
+	  }
 
     /**
-     * @param $usrAdmin
-     * @param $passwdAdmin
-     * @return mixed
+     * @param string $usrAdmin
+     * @param string $passwdAdmin
+     * @return dataBaseService
      * @throws errorDriverDB
      */
-    public function getService($usrAdmin, $passwdAdmin)
-    {
-        if ($this->service)
-            return $this->service;
+      public function getService(string $usrAdmin, string $passwdAdmin) : dataBaseService
+      {
+             if ($this->service !== null)
+                 return $this->service;
 
-        $className = "gcf\\database\\drivers\\{$this->drv}\\service";
-        if(!class_exists($className))
-            throw new errorDriverDB("Hi ha problemes per instanciar la classe del driver de servei $className");
+             $className = "gcf\\database\\drivers\\$this->drv\\DataBaseService";
 
-        $this->service = new $className($this->cadConn, $usrAdmin, $passwdAdmin);
-        return $this->service;
-    }
+			 if(!class_exists($className))
+				throw new errorDriverDB("Hi ha problemes per instanciar la classe del driver de servei $className");
 
-    public function endoll_db() : PDO
-    {
-        return ($this->dataBase);
-    }
+             $this->service = new $className($this->cadConn, $usrAdmin, $passwdAdmin);
+             return $this->service;
+      }
 
-    public function desconnecta()
-    {
-        if(!$this->dataBase) return;
-        $this->dataBase = null;
-    }
+      public function endoll_db() : dataBaseConn
+      {
+             return $this->dataBase;
+      }
 
-    public function reconnecta()
-    {
-        $this->desconnecta();
-        $this->connecta();
-    }
+      public function desconnecta() : void
+      {
+             $this->dataBase->Close();
+      }
+
+      public function reconnecta() : void
+      {
+               $this->desconnecta();
+               $this->connecta();
+      }
+
+      public function __destruct()
+      {
+             $this->dataBase->Close();
+      }
 }

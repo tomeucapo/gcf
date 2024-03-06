@@ -4,12 +4,15 @@ namespace gcf\database\drivers;
 
 abstract class queryBase 
 {
-	protected $dataBase, $connDb;
-	protected $rowActual, $rows;
+	protected dataBaseConn $dataBase;
+    protected mixed $connDb;
+
+	protected int $rowActual, $rows;
 	protected $result;
 	protected $error;
 	protected $blobID;
-	public $row, $assoc, $query;
+
+    public $row, $assoc, $query;
 
 	public function __construct(dataBaseConn $db)
 	{
@@ -49,7 +52,7 @@ abstract class queryBase
            return($this->connDb);
     }
 
-    public function ChangeConnection(dataBaseConn $connDb)
+    public function ChangeConnection(dataBaseConn $connDb) : void
     {
            $this->connDb = $connDb;
     }

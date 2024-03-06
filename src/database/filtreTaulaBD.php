@@ -10,7 +10,7 @@ class filtreTaulaBD
       public $where, $fields, $numRows, $camps;
 
     /**
-     * @var ?consulta_sql
+     * @var ?SQLQuery
      */
       private $query;
 
@@ -88,7 +88,7 @@ class filtreTaulaBD
               $where .=" ".$this->taula->condPrimaryKey($id);
 
           $qStr = "select $fieldsStr from {$this->taula->nomTaula} ".$this->joins." ".$where." ".$this->orderBy;
-          $this->query = new consulta_sql($this->taula->getConnection());
+          $this->query = new SQLQuery($this->taula->getConnection());
           $this->query->fer_consulta($qStr, $assoc=true);
       }
 

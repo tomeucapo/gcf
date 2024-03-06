@@ -8,7 +8,7 @@
 
 namespace gcf\web\templates;
 
-require_once "web/templates/patTemplate.php";
+require_once "patTemplate.php";
 
 class patEngine extends templateEngine
 {

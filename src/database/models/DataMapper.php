@@ -12,8 +12,8 @@
 namespace gcf\database\models;
 
 use Exception;
-use gcf\database\base_dades;
-use gcf\database\consulta_sql;
+use gcf\database\DatabaseConnector;
+use gcf\database\SQLQuery;
 use gcf\database\drivers\errorQuerySQL;
 use gcf\database\errorDriverDB;
 use Laminas\Log\Logger;
@@ -25,9 +25,9 @@ abstract class DataMapper
 {
     /**
      * Objecte de connexió a bbdd
-     * @var base_dades
+     * @var DatabaseConnector
      */
-    protected base_dades $db;
+    protected DatabaseConnector $db;
 
     protected $primaryKey;
     protected $tipusPK;
@@ -55,9 +55,9 @@ abstract class DataMapper
     public array $camps;
 
     /**
-     * @var consulta_sql
+     * @var SQLQuery
      */
-    private consulta_sql $commonQuery;
+    private SQLQuery $commonQuery;
 
     /**
      * @var string
@@ -77,14 +77,14 @@ abstract class DataMapper
     protected $converter;
 
     /**
-     * @param $db base_dades Database connection
+     * @param $db DatabaseConnector Database connection
      * @param $nomTaula String Mapped table name
      * @param $pk mixed Primary key name or list of fields compound primary key
      * @param $tipusPK mixed Primary key type or types
      * @throws errorDriverDB
      */
 
-    public function __construct(base_dades $db, string $nomTaula, $pk, $tipusPK)
+    public function __construct(DatabaseConnector $db, string $nomTaula, $pk, $tipusPK)
     {
         $this->nomTaula = $nomTaula;
         $this->db = $db;
@@ -97,7 +97,7 @@ abstract class DataMapper
 
         $this->useCommonTransact = false;
         $this->autoCommit = false;
-        $this->commonQuery = new consulta_sql($this->db);
+        $this->commonQuery = new SQLQuery($this->db);
         $this->converter = new DataConverter($this);
     }
 
@@ -220,7 +220,7 @@ abstract class DataMapper
     {
         if ($this->useCommonTransact)
             $cons = $this->commonQuery;
-        else $cons = new consulta_sql($this->db);
+        else $cons = new SQLQuery($this->db);
 
         $this->converter->Where(null);
 
@@ -275,7 +275,7 @@ abstract class DataMapper
 
         $this->escriuLog($this->lastQuery);
 
-        $cons = new consulta_sql($this->db);
+        $cons = new SQLQuery($this->db);
         try {
             $idTrans = null;
             if ($this->autoCommit)
@@ -304,7 +304,7 @@ abstract class DataMapper
      */
     final public function guardaImatge($id, string $fitxerImatge): bool
     {
-        $cons = new consulta_sql($this->db);
+        $cons = new SQLQuery($this->db);
 
         if (!$cons->guardaImatge($fitxerImatge)) {
             $this->lastError = "$fitxerImatge not found";
@@ -338,7 +338,7 @@ abstract class DataMapper
      */
     public function Carrega($id = '', $cond = '', $orderBy = '')
     {
-        $cons = new consulta_sql($this->db);
+        $cons = new SQLQuery($this->db);
 
         if (!$cond && $id)
         {
@@ -400,7 +400,7 @@ abstract class DataMapper
         if (!$this->generatorId)
             throw new Exception("Generator ID not specified!");
 
-        $q = new consulta_sql($this->db);
+        $q = new SQLQuery($this->db);
         $nextId = $q->nextID($this->generatorId);
 
         if ($nextId === false)
@@ -432,7 +432,7 @@ abstract class DataMapper
         }
 
         $idTrans = null;
-        $cons = new consulta_sql($this->db);
+        $cons = new SQLQuery($this->db);
         if ($this->autoCommit)
             $idTrans = $cons->iniciTrans();
 
@@ -472,7 +472,7 @@ abstract class DataMapper
         if ($where)
             $where = "where " . $where;
 
-        $cons = new consulta_sql($this->db);
+        $cons = new SQLQuery($this->db);
         $cons->fer_consulta("select extract(year from $camp_data) from {$this->nomTaula} $where group by 1;");
 
         while (!$cons->Eof())
@@ -487,9 +487,9 @@ abstract class DataMapper
 
     /**
      * Get database connection.
-     * @return base_dades
+     * @return DatabaseConnector
      */
-    final public function getConnection(): base_dades
+    final public function getConnection(): DatabaseConnector
     {
         return $this->db;
     }

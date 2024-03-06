@@ -9,7 +9,7 @@ namespace gcf;
 use gcf\cache\cacheDriverError;
 use gcf\cache\cachePlugin;
 use gcf\cache\dummyPlugin;
-use gcf\database\base_dades;
+use gcf\database\DatabaseConnector;
 use gcf\database\errorDriverDB;
 use gcf\tasks\errorJobServer;
 use gcf\tasks\taskPlugin;
@@ -32,7 +32,7 @@ abstract class ConfiguratorBase
      */
     private array $tmplClasses = [];
 
-    public base_dades $db;
+    public DatabaseConnector $db;
 
     protected Config $config;
 

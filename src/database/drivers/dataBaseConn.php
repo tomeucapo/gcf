@@ -19,13 +19,9 @@ abstract class dataBaseConn implements DBConnection
     /**
      * @var mixed Driver resource connection
      */
-	public $connDb;
+	public mixed $connDb;
 
-    /**
-     * @return mixed
-     * @throws errorDatabaseAutentication
-     */
-	abstract public function Open();
+	abstract public function Open() : void;
 	abstract public function Close();
 	abstract public function lastError();
 	

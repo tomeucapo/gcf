@@ -7,26 +7,17 @@ abstract class DataBaseService
 {
      protected string $host;
      protected string $user, $passwd;
-     protected $service;
+     protected mixed $service;
 
     /**
      * @var stdClass
      */
      public stdClass $info;
 
-     abstract public function Close();
+     abstract public function Close() : void;
+     abstract public function AddUser(string $userName, string $passwd, string $cn) : void;
+     abstract public function DelUser(string $userName) : void;
 
-
-    /**
-     * @param $userName
-     * @param $passwd
-     * @param $cn
-     * @return mixed
-     */
-     abstract public function AddUser(string $userName, string $passwd, string $cn);
-
-     abstract public function DelUser(string $userName);
-  
      public function __construct(string $host, string $user, string $passwd)
      {
             $this->host = $host;

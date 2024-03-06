@@ -16,7 +16,7 @@ abstract class ModelBase extends DataMapper implements ModelInterface
      * ModelBase constructor.
      * @throws errorDriverDB
      */
-    public function __construct(base_dades $db, string $nomTaula, $pk, $tipusPK)
+    public function __construct(DatabaseConnector $db, string $nomTaula, $pk, $tipusPK)
     {
         parent::__construct($db, $nomTaula, $pk, $tipusPK);
         $this->record = new Record([],[]);
