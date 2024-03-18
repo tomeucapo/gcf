@@ -34,7 +34,9 @@ class baseDadesTest extends TestCase
         $consulta->fer_consulta("select dni_persona from absencia where codi=8");
 
         if (!$consulta->Eof()) {
-            echo "Nom = " . $consulta->RelacioField(0);
+            echo "Nom taula = " . $consulta->RelacioField(0)."\n";
+            echo "Nom camp = " . $consulta->NomField(0)."\n";
+            echo "Tipus camp = " . $consulta->TipusField(0)."\n";
         }
         $consulta->tanca_consulta();
     }

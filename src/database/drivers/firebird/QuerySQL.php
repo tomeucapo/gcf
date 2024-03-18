@@ -11,6 +11,8 @@ class QuerySQL extends queryBase
 {
       private bool $myEof = false;
 
+      private array $typesDefinition = [];
+
       protected mixed $hndTrans;
 
       public function __construct(dataBaseConn $db)
@@ -41,7 +43,6 @@ class QuerySQL extends queryBase
     /**
      * @return resource
      * @throws errorQuerySQL
-     * @throws errorDatabaseAutentication
      */
       public function Execute()
       {
@@ -78,6 +79,9 @@ class QuerySQL extends queryBase
                  throw new errorQuerySQL($this->error, $this->query);
              }
 
+             $queryKey = sha1($this->query);
+             $this->typesDefinition[$queryKey] = [];
+
              if (preg_match("/^[ \n\r\t]*(select|SELECT)/", $this->query))
              {
                 $this->myEof = false;                 
@@ -98,39 +102,57 @@ class QuerySQL extends queryBase
             return $i;
       }
       
-      public function NumFields() : int
+      public function NumFields() : ?int
       {
-            return ibase_num_fields($this->result);
+          if (!$this->result)
+              return null;
+
+          return ibase_num_fields($this->result);
       }
-      
+
+      private function GetFieldDef(string $attribute, int $num)
+      {
+          $queryKey = sha1($this->query);
+
+          if (!empty($this->typesDefinition[$queryKey]))
+              return $this->typesDefinition[$queryKey][$num][$attribute];
+
+          $this->typesDefinition[$queryKey][$num] = @ibase_field_info($this->result, $num);
+          return $this->typesDefinition[$queryKey][$num][$attribute];
+      }
+
       public function GetFieldName($field)
       {
-            $info_field = ibase_field_info($this->result, $field);
-            return $info_field['name'];
+          if (!$this->result)
+              return null;
+          return $this->GetFieldDef('name', $field);
       }
       
       public function GetFieldType($field)
-      {          
-            $info_field = ibase_field_info($this->result, $field);            
-            return $info_field['type'];
+      {
+	 $def =  @ibase_field_info($this->result, $field);
+         return $def["type"];
       }
 
       public function GetFieldRelation($field)
-      {     
-            $info_field = ibase_field_info($this->result, $field);
-            return $info_field['relation'];
+      {
+          if (!$this->result)
+              return null;
+          return $this->GetFieldDef('relation', $field);
       }
       
       public function GetFieldAlias($field)
-      {     
-            $info_field = ibase_field_info($this->result, $field);
-            return $info_field['alias'];
+      {
+          if (!$this->result)
+              return null;
+          return $this->GetFieldDef('alias', $field);
       }
 
       public function GetFieldLength($field)
       {
-            $info_field = ibase_field_info($this->result, $field);
-            return $info_field['length'];
+          if (!$this->result)
+              return null;
+          return $this->GetFieldDef('length', $field);
       }
 
       protected function StoreBLOB($fileDescriptor) : false | string
@@ -138,10 +160,12 @@ class QuerySQL extends queryBase
             return @ibase_blob_import($this->connDb, $fileDescriptor);
       }
       
-      public function LoadFromBLOB($rowBlob) : false|string
+      public function LoadFromBLOB($rowBlob)
       {
             $data = '';            
             $blobHandler = @ibase_blob_open($this->connDb, $rowBlob);
+
+            //error_log("$this->query from BLOB $rowBlob = $blobHandler");
 
             if (!$blobHandler)
                return $data;

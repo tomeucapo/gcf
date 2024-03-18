@@ -76,6 +76,8 @@ abstract class DataMapper
      */
     protected $converter;
 
+    public bool $BLOBLoad;
+    
     /**
      * @param $db DatabaseConnector Database connection
      * @param $nomTaula String Mapped table name
@@ -94,6 +96,7 @@ abstract class DataMapper
         $this->result = null;
         $this->logger = null;
         $this->commonTransId = null;
+        $this->BLOBLoad = true;
 
         $this->useCommonTransact = false;
         $this->autoCommit = false;
@@ -335,6 +338,7 @@ abstract class DataMapper
      * @throws errorQuerySQL Error de nivell de SQL
      * @throws noDataFound Si no ha trobat cap registre
      * @throws noPrimaryKey Si no ha pogut fer el condicional en base de la PK.
+     * @throws errorDriverDB
      */
     public function Carrega($id = '', $cond = '', $orderBy = '')
     {
@@ -356,7 +360,7 @@ abstract class DataMapper
 
         try {
             if ($this->autoCommit) $cons->ferCommit();
-            $cons->fer_consulta($query, $assoc = true);
+            $cons->fer_consulta($query, true);
             $this->camps = [];
         } catch (errorQuerySQL $e) {
             $this->escriuLog($e->getMessage());
@@ -374,18 +378,19 @@ abstract class DataMapper
         $this->camps = $cons->row;
 
         // Carregam el contigut del BLOB si hi ha algun camp que contengui un blob
-        $i = 0;
-        foreach ($this->camps as $nomCamp => $valor)
-        {
-            if ($cons->TipusField($i) === 'BLOB')
-            {
-               $this->camps[$nomCamp] = !empty($valor) ? $cons->carregarBLOB($valor) : "";
-            }
-            $i++;
-        }
-
-	    $this->lastQuery = $query;
-        $this->result = new ResultSet($cons, $this->primaryKey);
+		if ($this->BLOBLoad)
+		{
+            $i = 0;
+        	foreach ($this->camps as $nomCamp => $valor)
+			{
+            	if ($cons->TipusField($i) === 'BLOB') {
+                    $this->camps[$nomCamp] = !empty($valor) ? $cons->carregarBLOB($valor) : "";
+                }
+                $i++;
+        	}
+		}
+  	    $this->lastQuery = $query;
+        $this->result = new ResultSet($cons, $this->primaryKey); //, $this->BLOBLoad);
 
         return true;
     }

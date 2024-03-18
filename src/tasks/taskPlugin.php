@@ -74,7 +74,6 @@ abstract class taskPlugin
      * @param string $taskName
      * @param array $args
      * @return mixed
-     * @throws \Zend_Exception
      */
     public function __call(string $taskName, array $args = [])
     {
@@ -101,11 +100,10 @@ abstract class taskPlugin
      * Get job status
      * @param string $taskName
      * @param $jobHandle
-     * @return array
-     * @throws \Zend_Exception
+     * @return \stdClass
      * @throws \Exception
      */
-    public function getStatus(string $taskName, $jobHandle)
+    public function getStatus(string $taskName, $jobHandle) : \stdClass
     {
         $cache = configurador::getInstance()->getCache();
         $taskKey = self::TaskKey($taskName, $jobHandle);
@@ -130,7 +128,6 @@ abstract class taskPlugin
      * @param $taskName
      * @param $jobHandle
      * @return mixed|null
-     * @throws \Zend_Exception
      * @throws errorTaskResponse
      */
     public function getResults($taskName, $jobHandle)

@@ -22,11 +22,17 @@ class ResultSet implements Iterator
     private mixed $pk;
     protected array $types;
 
-    public function __construct(SQLQuery $query, mixed $pk)
+    /**
+     * @var bool BLOB Loading when get current record. By default, is disabled
+     */
+    private bool $BLOBLoad;
+
+    public function __construct(SQLQuery $query, mixed $pk, bool $BLOBLoad=false)
     {
         $this->query = $query;
         $this->pk = $pk;
         $this->types = [];
+        $this->BLOBLoad = $BLOBLoad;
     }
 
     /**
@@ -63,9 +69,12 @@ class ResultSet implements Iterator
     {
         $camps = $this->query->row;
 
-        foreach ($camps as $nomCamp => $valor) {
-            if ($this->types[$nomCamp]["type"] === 'BLOB' && !empty($valor)) {
-                $camps[$nomCamp] = $this->query->carregarBLOB($valor);
+        if ($this->BLOBLoad)
+        {
+            foreach ($camps as $nomCamp => $valor) {
+                if ($this->types[$nomCamp]["type"] === 'BLOB' && !empty($valor)) {
+                    $camps[$nomCamp] = $this->query->carregarBLOB($valor);
+                }
             }
         }
 

@@ -45,13 +45,13 @@ class filtreTaulaBD
              $this->camps[$property] = $value;
       }
 
-      public function addField($fieldName)
+      public function addField($fieldName) : void
       {
              if(!in_array($fieldName, $this->fields)) 
-                array_push($this->fields, $fieldName);
+                $this->fields[] = $fieldName;
       }
        
-      public function leftJoin(DataMapper $taulaJoin, $campJoinSrc, $campJoinDst)
+      public function leftJoin(DataMapper $taulaJoin, $campJoinSrc, $campJoinDst) : void
       {
              $this->joins .= "left join {$taulaJoin->nomTaula} on {$taulaJoin->nomTaula}.$campJoinSrc = $campJoinDst ";
       }

@@ -112,17 +112,17 @@ class SQLQuery
 
     /**
      * @param bool $assoc
-     * @return bool|mixed
+     * @return mixed
      * @throws errorQuerySQL
      */
-    public function executa($assoc=false)
+    public function executa(bool $assoc=false) : mixed
     {
         if (isset($this->consulta))
             return $this->fer_consulta($this->consulta->query, $assoc);
         return false;
     }
 
-    public function Eof()
+    public function Eof() : bool
     {
         if (isset($this->cache))
         {
@@ -141,7 +141,7 @@ class SQLQuery
         }
     }
 
-    public function Skip()
+    public function Skip() : void
     {
         if (isset($this->cache))
         {
@@ -163,7 +163,7 @@ class SQLQuery
         }
     }
 
-    public function Record()
+    public function Record() : int
     {
         if (isset($this->cache))
         {
@@ -175,7 +175,7 @@ class SQLQuery
         return $this->consulta->Record();
     }
 
-    public function LastRecord()
+    public function LastRecord() : int
     {
         if (isset($this->cache))
         {

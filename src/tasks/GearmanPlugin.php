@@ -8,17 +8,13 @@
 
 namespace gcf\tasks;
 
+use GearmanClient;
+use GearmanTask;
+
 class GearmanPlugin extends taskPlugin
 {
-    /**
-     * @var \GearmanClient
-     */
-    private $client;
-
-    /**
-     * @var \GearmanTask
-     */
-    private $actualTask;
+    private GearmanClient $client;
+    private GearmanTask $actualTask;
 
     /**
      * GearmanPlugin constructor.
@@ -28,19 +24,18 @@ class GearmanPlugin extends taskPlugin
      */
     public function __construct(array $servers)
     {
-        if (!class_exists("GearmanClient")) {
+        if (!class_exists("GearmanClient"))
             throw new \Exception("El driver GearmanClient no esta instal·lat, no podem executar la tasca");
-        }
 
         parent::__construct($servers);
 
-        $this->client = new \GearmanClient();
+        $this->client = new GearmanClient();
         $this->client->addServers($servers[0]);
 
         if (!$this->client->ping("test"))
-            throw new errorJobServer("El servidor {$servers[0]} no contesta");
+            throw new errorJobServer("El servidor $servers[0] no contesta");
 
-        $this->client->setCreatedCallback(function (\GearmanTask $task) use (&$handles) {
+        $this->client->setCreatedCallback(function (GearmanTask $task) use (&$handles) {
             $this->jobHandle = $task->jobHandle();
         });
     }
@@ -50,6 +45,10 @@ class GearmanPlugin extends taskPlugin
         return $this->client->ping("test");
     }
 
+    public function GetActualTask() : GearmanTask
+    {
+        return $this->actualTask;
+    }
     /**
      * Resolve how its method name to add task
      * @return string
@@ -79,7 +78,7 @@ class GearmanPlugin extends taskPlugin
      * @throws errorExecutingTask
      * @throws \Exception
      */
-    public function execute($taskName, $payload = null)
+    public function execute($taskName, $payload = null) : string
     {
         $this->client->setTimeout(self::DEFAULT_PING_TIMEOUT);
         if (!@$this->client->ping("none"))
@@ -94,7 +93,7 @@ class GearmanPlugin extends taskPlugin
         if ($this->mode === TaskExecutionMode::NORMAL)
         {
             $this->actualTask = $this->client->$executionMethod($taskName, json_encode($payload), $this->jobID);
-            $this->client->setDataCallback(function(\GearmanTask $task) {
+            $this->client->setDataCallback(function(GearmanTask $task) {
                 $this->jobResult = $task->data();
             });
         }

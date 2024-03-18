@@ -17,7 +17,7 @@ class DataIterator implements \Iterator
      * @return int Can return any type.
      * @since 5.0.0
      */
-    public function current() : int
+    public function current() : mixed 
     {
         return $this->data->getRow();
     }
