@@ -38,11 +38,12 @@
     "require-dev": {
         "phpunit/phpunit": "^10"
     },
-  "authors": [
+	"authors": [
     {
       "name": "Tomeu Capo",
       "email": "tomeucapo@gmail.com"
     }
+	"license": "MIT",
   ],
   "autoload": {
     "psr-4": {
