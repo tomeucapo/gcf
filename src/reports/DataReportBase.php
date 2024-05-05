@@ -217,21 +217,26 @@ abstract class DataReportBase implements DataReport
                   $sheet->getHeaderFooter()->setEvenFooter('&L&B' . $objExcel->getProperties()->getTitle() . '&RPagina &P of &N (&D &T)');
 
                   $col = 1; $row = 1;
-                  $sheet->mergeCells("A".$row.":"."E".$row);
-                  $sheet->setCellValue("A".$row++, $this->title);
-                  $sheet->getStyle('A1')->getFont()->setSize(20);
-                  $sheet->getStyle('A1')->getFont()->setBold(true);
-                  $sheet->getStyle('A1')->applyFromArray($cellStyles);
-
-                  foreach ($this->subtitles as $sub)
-                  {
+				  if (!empty($this->title))
+				  {
+					$sheet->mergeCells("A".$row.":"."E".$row);
+					$sheet->setCellValue("A".$row++, $this->title);
+					$sheet->getStyle('A1')->getFont()->setSize(20);
+					$sheet->getStyle('A1')->getFont()->setBold(true);
+					$sheet->getStyle('A1')->applyFromArray($cellStyles);
+				  }	
+				  
+				  if (!empty($this->subtitles))
+				  {
+					foreach ($this->subtitles as $sub)
+					{
                            $sheet->setCellValue("A".$row, $sub);
                            $sheet->mergeCells("A".$row.":"."E".$row);
                            $sheet->getStyle("A".$row)->applyFromArray($cellStyles);
                            $row++;
-                  }
-                  $row++;
-
+					}
+					$row++;
+				  }
                   $colDefs = $this->header->getDefinitions();
 
                   // Afegim les etiquetes de les columnes
