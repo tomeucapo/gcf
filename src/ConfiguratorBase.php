@@ -6,6 +6,7 @@
 
 namespace gcf;
 
+use Exception;
 use gcf\cache\cacheDriverError;
 use gcf\cache\cachePlugin;
 use gcf\cache\dummyPlugin;
@@ -20,6 +21,7 @@ use Laminas\Log\Logger;
 use Laminas\ServiceManager\ServiceManager;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use stdClass;
 
 abstract class ConfiguratorBase
 {
@@ -81,7 +83,7 @@ abstract class ConfiguratorBase
 
     /**
      * Get main database application connection
-     * @throws \Exception
+     * @throws Exception
      */
     private function initDBMain() : void
     {
@@ -91,7 +93,7 @@ abstract class ConfiguratorBase
             $this->db = $dbPool->$dbMain->getConnection();
         } catch (errorDriverDB $e) {
             error_log($e->getMessage());
-            throw new \Exception("DB Error: " . $e->getMessage());
+            throw new Exception("DB Error: " . $e->getMessage());
         }
     }
 
@@ -136,7 +138,7 @@ abstract class ConfiguratorBase
     /**
      * Set application configuration from .ini file
      * @param Config $config
-     * @throws \Exception
+     * @throws Exception
      */
     public function setConfig(Config $config) : void
     {
@@ -145,7 +147,7 @@ abstract class ConfiguratorBase
         $this->initDBMain();
 
         if (!$config->general->template_engines)
-            throw new \Exception("There not defined template_engines into configuration file!");
+            throw new Exception("There not defined template_engines into configuration file!");
 
         foreach (explode(",", $config->general->template_engines) as $engineName)
         {
@@ -211,34 +213,35 @@ abstract class ConfiguratorBase
 
     /**
      * Get cache connection object
+     * @param int|null $dbIndex
      * @return cachePlugin
      */
-    public function getCache(): cachePlugin
+    public function getCache(?int $dbIndex=null): cachePlugin
     {
         if ($this->cache instanceof cachePlugin)
             return $this->cache;
 
-        $dbindex = null;
         $type = $this->config->cache->type;
         $host = $this->config->cache->host;
         $port = $this->config->cache->port;
-        if (!empty($this->config->cache->dbindex))
-            $dbindex = $this->config->cache->dbindex;
+
+        if ($dbIndex === null && !empty($this->config->cache->dbindex))
+            $dbIndex = $this->config->cache->dbindex;
 
         $classPlugin = "\\gcf\\cache\\$type" . "Plugin";
         if (!class_exists($classPlugin))
             return new cache\dummyPlugin();
 
-        $cnx = new \stdClass();
+        $cnx = new stdClass();
         $cnx->host = $host;
         $cnx->port = $port;
         try {
             /** @var cachePlugin $classPlugin */
-            $this->cache = new $classPlugin([$cnx], $dbindex);
+            $this->cache = new $classPlugin([$cnx], $dbIndex);
         } catch (cacheDriverError $e) {
             $this->getLoggerObject()->err(__CLASS__ . " Cache driver error: " . $e->getMessage());
             return new dummyPlugin();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->getLoggerObject()->err(__CLASS__ . " Cache general error: " . $e->getMessage());
             return new dummyPlugin();
         }
@@ -261,17 +264,17 @@ abstract class ConfiguratorBase
 
         $classPlugin = "\\gcf\\tasks\\$type" . "Plugin";
         if (!class_exists($classPlugin)) {
-            $this->getLogger()->err("El driver $classPlugin no existeix!");
+            $this->getLoggerObject()->err("El driver $classPlugin no existeix!");
             return null;
         }
         try {
             /** @var taskPlugin $classPlugin */
             $this->jobExecutor = new $classPlugin(["$host:$port"]);
         } catch (errorJobServer $e) {
-            $this->getLogger()->err(__CLASS__ . "Driver error: " . $e->getMessage());
+            $this->getLoggerObject()->err(__CLASS__ . "Driver error: " . $e->getMessage());
             return null;
-        } catch (\Exception $e) {
-            $this->getLogger()->err(__CLASS__ . ": " . $e->getMessage());
+        } catch (Exception $e) {
+            $this->getLoggerObject()->err(__CLASS__ . ": " . $e->getMessage());
             return null;
         }
 
