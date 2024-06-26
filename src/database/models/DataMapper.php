@@ -1,13 +1,4 @@
 <?php
-/******************************************************************************
- * taulaBD.php
- *
- * Classe que ens permet treballar amb una taula be base de dades a alt nivell
- * sense necessitat de fer sentencies SQL, per fer les operacions tradicionals
- * de INSERT, DELETE o UPDATE.
- *
- * Tomeu Capó
- ******************************************************************************/
 
 namespace gcf\database\models;
 
@@ -20,6 +11,9 @@ use Laminas\Log\Logger;
 
 /**
  * Class taulaBD
+ * Classe que ens permet treballar amb una taula be base de dades a alt nivell
+ * sense necessitat de fer sentències SQL, per fer les operacions tradicionals
+ * d'INSERT, DELETE o UPDATE.
  */
 abstract class DataMapper
 {
@@ -29,8 +23,8 @@ abstract class DataMapper
      */
     protected DatabaseConnector $db;
 
-    protected $primaryKey;
-    protected $tipusPK;
+    protected mixed $primaryKey;
+    protected mixed $tipusPK;
 
     protected ?Logger $logger;
 
@@ -39,19 +33,14 @@ abstract class DataMapper
      */
     public string $lastQuery;
 
-    /**
-     * @var String
-     */
     public string $nomTaula;
 
     public ?ResultSet $result;
 
-    public $lastError;
+    public string $lastError;
+
     public bool $autoCommit;
 
-    /**
-     * @var array
-     */
     public array $camps;
 
     /**
@@ -74,7 +63,7 @@ abstract class DataMapper
     /**
      * @var DataConverter
      */
-    protected $converter;
+    protected DataConverter $converter;
 
     public bool $BLOBLoad;
     
@@ -86,7 +75,7 @@ abstract class DataMapper
      * @throws errorDriverDB
      */
 
-    public function __construct(DatabaseConnector $db, string $nomTaula, $pk, $tipusPK)
+    public function __construct(DatabaseConnector $db, string $nomTaula, mixed $pk, mixed $tipusPK)
     {
         $this->nomTaula = $nomTaula;
         $this->db = $db;

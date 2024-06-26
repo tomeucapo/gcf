@@ -1,7 +1,5 @@
 <?php
-namespace gcf\database;
-
-use gcf\database\models\Record;
+namespace gcf\database\models;
 
 interface ModelInterface
 {

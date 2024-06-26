@@ -1,9 +1,9 @@
 <?php
 
-namespace gcf\database;
+namespace gcf\database\models;
 
-use gcf\database\models\Record;
-use gcf\database\models\DataMapper;
+use gcf\database\DatabaseConnector;
+use gcf\database\errorDriverDB;
 
 abstract class ModelBase extends DataMapper implements ModelInterface
 {
