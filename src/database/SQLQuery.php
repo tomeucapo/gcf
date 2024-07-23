@@ -21,8 +21,13 @@ class SQLQuery
 
     private bool $autoFlush;
 
-    private $queryObj, $firmaLastQuery, $rowCount;
-    public $row, $assoc;
+    private stdClass $queryObj;
+
+    public readonly string $firmaLastQuery;
+
+    private int $rowCount;
+
+    public mixed $row;
 
     /**
      * @var bool
@@ -57,8 +62,9 @@ class SQLQuery
         $rowTypes = [];
         for ($i = 0; $i < count($this->consulta->row); $i++) {
             $rowTypes[] = ["TYPE" => $this->consulta->GetFieldType($i),
-                "NAME" => $this->consulta->GetFieldName($i),
-                "LENGTH" => $this->consulta->GetFieldLength($i)];
+                           "NAME" => $this->consulta->GetFieldName($i),
+                           "LENGTH" => $this->consulta->GetFieldLength($i),
+                           "RELATION" => $this->consulta->GetFieldRelation($i)];
         }
         return $rowTypes;
     }
@@ -76,7 +82,7 @@ class SQLQuery
      *
      * @throws errorQuerySQL
      */
-    public function fer_consulta(string $query, bool $assoc=false)
+    public function fer_consulta(string $query, bool $assoc=false) : mixed
     {
         $this->consulta->assoc = $assoc;
         $resCons = null;
@@ -203,7 +209,7 @@ class SQLQuery
     {
         if (isset($this->cache))
         {
-            if ($numField>count($this->queryObj->rowTypes))
+            if ($numField>count($this->queryObj->rowTypes)-1)
                 return null;
             return $this->queryObj->rowTypes[$numField]["NAME"];
         }
@@ -215,7 +221,7 @@ class SQLQuery
     {
         if (isset($this->cache))
         {
-            if ($numField>count($this->queryObj->rowTypes))
+            if ($numField>count($this->queryObj->rowTypes)-1)
                 return null;
             return $this->queryObj->rowTypes[$numField]["LENGTH"];
         }
@@ -223,11 +229,21 @@ class SQLQuery
         return $this->consulta->GetFieldLength($numField);
     }
 
-    public function RelacioField(int $numRow)
+    public function RelacioField(int $numField)
     {
-        return $this->consulta->GetFieldRelation($numRow);
+        if (isset($this->cache))
+        {
+            if ($numField>count($this->queryObj->rowTypes)-1)
+                return null;
+            return $this->queryObj->rowTypes[$numField]["RELATION"];
+        }
+
+        return $this->consulta->GetFieldRelation($numField);
     }
 
+    /**
+     * @return mixed
+     */
     public function NumFields()
     {
         return $this->consulta->NumFields();
@@ -238,7 +254,7 @@ class SQLQuery
         return $this->consulta->LoadFromBLOB($blobID);
     }
 
-    public function guardaImatge(string $fileName)
+    public function guardaImatge(string $fileName) : bool
     {
         return $this->consulta->StoreFileToBLOB($fileName);
     }
@@ -258,7 +274,7 @@ class SQLQuery
         return $this->consulta->Commit($idTrans);
     }
 
-    public function tanca_consulta()
+    public function tanca_consulta() : void
     {
         if (isset($this->cache)) {
             if ($this->initialGet) {
@@ -271,11 +287,6 @@ class SQLQuery
     public function nextID($genID)
     {
         return $this->consulta->NextID($genID);
-    }
-
-    public function getCacheKey()
-    {
-        return $this->firmaLastQuery;
     }
 
     public function lastError()

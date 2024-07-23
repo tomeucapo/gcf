@@ -2,6 +2,7 @@
 namespace gcf\database\drivers\firebird;
 
 use gcf\database\ConnectionMode;
+use gcf\database\DataBaseConnProps;
 use gcf\database\drivers\dataBaseConn;
 use gcf\database\drivers\errorDatabaseAutentication;
 use gcf\database\drivers\errorDatabaseConnection;
@@ -9,34 +10,30 @@ use gcf\database\drivers\errorDatabaseDriver;
 
 class Connector extends dataBaseConn
 {
+    private DataBaseConnProps $props;
+
     private string $funcConn;
     private string $role;
-    private string $user, $pass;
 
     /**
      * baseDadesFirebird constructor.
-     * @param string $cadConn
-     * @param string $user
-     * @param string $passwd
+     * @param DataBaseConnProps $props
      * @param ?string $my_role
      * @param ConnectionMode $mode
+     * @throws errorDatabaseAutentication
      * @throws errorDatabaseConnection
      * @throws errorDatabaseDriver
-     * @throws errorDatabaseAutentication
      */
 
-    public function __construct(string $cadConn, string $user, string $passwd, ?string $my_role = "", ConnectionMode $mode = ConnectionMode::NORMAL)
+    public function __construct(DataBaseConnProps $props, ?string $my_role = "", ConnectionMode $mode = ConnectionMode::NORMAL)
     {
         $this->funcConn = ($mode === ConnectionMode::NORMAL) ? "ibase_connect" : "ibase_pconnect";
         if (!function_exists($this->funcConn))
             throw new errorDatabaseDriver("No hi ha instal.lat el driver de Firebird!");
 
-        $this->user = $user;
-        $this->pass = $passwd;
-
         $this->role = $my_role;
-        $this->cadConn = $cadConn;
         $this->drvId = "INTERBASE";
+        $this->props = $props;
 
         $this->Open();
     }
@@ -49,9 +46,9 @@ class Connector extends dataBaseConn
     {
         $funcConn = $this->funcConn;
         if (empty($this->role))
-            $this->connDb = @$funcConn($this->cadConn, $this->user, $this->pass, 'UTF8', 0, 3);
+            $this->connDb = @$funcConn($this->props->cadConn, $this->props->user, $this->props->passwd, 'UTF8', 0, 3);
         else
-            $this->connDb = @$funcConn($this->cadConn, $this->user, $this->pass, 'UTF8', 0, 3, $this->role);
+            $this->connDb = @$funcConn($this->props->cadConn, $this->props->user, $this->props->passwd, 'UTF8', 0, 3, $this->role);
 
         if (!$this->connDb)
         {

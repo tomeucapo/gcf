@@ -1,6 +1,8 @@
 <?php
 namespace gcf\database\drivers\oracle;
 
+use gcf\database\ConnectionMode;
+use gcf\database\DataBaseConnProps;
 use gcf\database\drivers\dataBaseConn;
 use gcf\database\drivers\errorDatabaseConnection;
 use gcf\database\drivers\errorDatabaseDriver;
@@ -9,24 +11,22 @@ class Connector extends dataBaseConn
 {
     /**
      * baseDadesOracle constructor.
-     * @param $cadConn
-     * @param $user
-     * @param $passwd
-     * @param $role
-     * @param string $mode
+     * @param DataBaseConnProps $props Connection properties
+     * @param string $role Not used
+     * @param ConnectionMode $mode Connection mode: Normal or Persistent
      * @throws errorDatabaseConnection
      * @throws errorDatabaseDriver
      */
-      public function __construct($cadConn, $user, $passwd, $role, $mode="N") 
+      public function __construct(DataBaseConnProps $props, string $role, ConnectionMode $mode = ConnectionMode::NORMAL)
       {
-             $funcConn = ($mode == "N") ? "ocilogon" : "ociplogon";
+             $funcConn = ($mode ==  ConnectionMode::NORMAL) ? "ocilogon" : "ociplogon";
 	         if (!function_exists($funcConn))
-		        throw new errorDatabaseDriver("No hi ha instal.lat el driver de Oracle!");
+		        throw new errorDatabaseDriver("$funcConn not installed in your PHP!");
 				 
-	         if (!($this->connDb = @$funcConn($user, $passwd, $cadConn)))
-                throw new errorDatabaseConnection("Error al connectar a: ".$cadConn);          
+	         if (!($this->connDb = @$funcConn($props->user, $props->passwd, $props->cadConn)))
+                throw new errorDatabaseConnection("Error connecting to: ".$props->cadConn);
 				 
-	         $this->cadConn = $cadConn;
+	         $this->cadConn = $props->cadConn;
       }
 	  
       public function Close()
@@ -48,7 +48,7 @@ class Connector extends dataBaseConn
 	     $this->Close();
       }
 
-    public function Open()
+    public function Open(): void
     {
         // TODO: Implement Open() method.
     }

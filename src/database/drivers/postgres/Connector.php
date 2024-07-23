@@ -3,6 +3,7 @@
 namespace gcf\database\drivers\postgres;
 
 use gcf\database\ConnectionMode;
+use gcf\database\DataBaseConnProps;
 use gcf\database\drivers\dataBaseConn;
 use gcf\database\drivers\errorDatabaseConnection;
 use gcf\database\drivers\errorDatabaseDriver;
@@ -10,18 +11,22 @@ use gcf\database\drivers\errorDatabaseDriver;
 class Connector extends dataBaseConn
 {
     /**
+     * @param DataBaseConnProps $props
+     * @param string $role
+     * @param ConnectionMode $mode
+     * @throws errorDatabaseConnection
      * @throws errorDatabaseDriver
      */
-    public function __construct(string $cadConn, string $user, string $passwd, string $role, ConnectionMode $mode=ConnectionMode::NORMAL)
+    public function __construct(DataBaseConnProps $props, string $role, ConnectionMode $mode=ConnectionMode::NORMAL)
       {
              $funcConn = ($mode == ConnectionMode::NORMAL) ? "pg_connect" : "pg_pconnect";
              if (!function_exists($funcConn))
-                throw new errorDatabaseDriver("No hi ha instal.lat el driver de Postgres!");
+                throw new errorDatabaseDriver("$funcConn not installed in your PHP!");
 
-             $this->cadConn = "$cadConn user=$user password=$passwd";
+             $cadConn = "$props->cadConn user=$props->user password=$props->passwd";
                 
-             if (!($this->connDb = @$funcConn($this->cadConn)))
-                throw new errorDatabaseConnection("Error de connexio a Postgres: ".$cadConn);
+             if (!($this->connDb = @$funcConn($cadConn)))
+                throw new errorDatabaseConnection("Error connecting to PostgresSQL");
       }
 	  
       public function Close()
@@ -40,7 +45,7 @@ class Connector extends dataBaseConn
 	    $this->Close();
       }
 
-    public function Open()
+    public function Open() : void
     {
         // TODO: Implement Open() method.
     }

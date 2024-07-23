@@ -100,7 +100,7 @@ abstract class queryBase
             return $this->error;
     }
 
-    public function StoreFileToBLOB(string $nomFitxer)
+    public function StoreFileToBLOB(string $nomFitxer) : bool
     {
            if(!file_exists($nomFitxer)) 
               return false;

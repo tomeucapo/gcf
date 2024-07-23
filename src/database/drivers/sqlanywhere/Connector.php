@@ -1,6 +1,8 @@
 <?php
 namespace gcf\database\drivers\sqlanywhere;
 
+use gcf\database\ConnectionMode;
+use gcf\database\DataBaseConnProps;
 use gcf\database\drivers\dataBaseConn;
 use gcf\database\drivers\errorDatabaseConnection;
 use gcf\database\drivers\errorDatabaseDriver;
@@ -9,20 +11,21 @@ class Connector extends dataBaseConn
 {
     /**
      * baseDades constructor.
-     * @param string $cadConn
-     * @param string $user
-     * @param string $passwd
+     * @param DataBaseConnProps $props
+     * @param string $role
+     * @param ConnectionMode $mode
      * @throws errorDatabaseConnection
      * @throws errorDatabaseDriver
      */
-      public function __construct(string $cadConn, string $user, string $passwd)
+      public function __construct(DataBaseConnProps $props, string $role, ConnectionMode $mode=ConnectionMode::NORMAL)
       {
-	         if (!function_exists("sasql_pconnect"))
-	        	 throw new errorDatabaseDriver("No hi ha instal.lat el driver de SQLAnywhere!");
+             $funcConn = ($mode == ConnectionMode::NORMAL) ? "sasql_connect" : "sasql_pconnect";
+	         if (!function_exists($funcConn))
+	        	 throw new errorDatabaseDriver("$funcConn not installed in your PHP!");
 				 
-             $this->cadConn = "uid=$user;pwd=$passwd;$cadConn";	    
-             if (! ($this->connDb = @sasql_pconnect($this->cadConn)) )
-	             throw new errorDatabaseConnection("Error al connectar a la base de dades de SQLAnywhere");
+             $cadConn = "uid=$props->user;pwd=$props->passwd;$props->cadConn";
+             if (! ($this->connDb = @$funcConn($cadConn)) )
+	             throw new errorDatabaseConnection("Error al connecting to $props->cadConn");
 		   
     	    $this->drvId = "SQLANYWHERE";
       }
@@ -38,7 +41,7 @@ class Connector extends dataBaseConn
 	     return(sasql_error($this->connDb));
       }
 
-      public function Open()
+      public function Open() : void
       {
           // TODO: Implement Open() method.
       }

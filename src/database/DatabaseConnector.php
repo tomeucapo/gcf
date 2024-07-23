@@ -15,11 +15,16 @@ class DatabaseConnector
 
     /**
      * Database driver name
-     * @var string
      */
-      public string $drv;
+      public readonly string $drv;
 
-      private string $cadConn, $user, $passwd, $className;
+    /**
+     * Database connection properties
+     * @var DataBaseConnProps
+     */
+      private DataBaseConnProps $properties;
+
+      private string $className;
 
       private ConnectionMode $mode;
 
@@ -27,9 +32,9 @@ class DatabaseConnector
 
       private ?DataBaseService $service = null;
 
-      public bool $autoFlushCache = false;
 
     /**
+     * Database connection constructor. Establish connection when you instantiate the class
      * @param string $cadConn
      * @param string $user
      * @param string $passwd
@@ -42,16 +47,14 @@ class DatabaseConnector
       public function __construct(string $cadConn, string $user, string $passwd, ConnectionMode $mode=ConnectionMode::NORMAL, string $drv="firebird", ?string $my_role="")
       {
 			 if (empty($drv))
-				throw new errorDriverDB("No s'ha especificat el driver de base de dades a instanciar!");
+				throw new errorDriverDB("Driver not defined!");
 
              $this->drv = strtolower($drv);
              $this->className = "gcf\\database\\drivers\\$this->drv\\Connector";
              if(!class_exists($this->className))
-				throw new errorDriverDB("Hi ha problemes per instanciar la classe del driver de BBDD $this->className");
+				throw new errorDriverDB("Class $this->className not exists in your PHP installation");
 
-			 $this->cadConn = $cadConn;
-			 $this->user = $user;
-		     $this->passwd = $passwd;
+             $this->properties = new DataBaseConnProps($user, $passwd, $cadConn);
 
              if (!empty($my_role))
 			    $this->myRole = $my_role;
@@ -63,7 +66,11 @@ class DatabaseConnector
 
 	  private function connecta() : void
 	  {
-             $this->dataBase = new $this->className($this->cadConn, $this->user, $this->passwd, $this->myRole, $this->mode);
+             $this->dataBase = new $this->className(
+                 $this->properties,
+                 $this->myRole,
+                 $this->mode
+             );
 	  }
 
     /**
@@ -80,9 +87,9 @@ class DatabaseConnector
              $className = "gcf\\database\\drivers\\$this->drv\\DataBaseService";
 
 			 if(!class_exists($className))
-				throw new errorDriverDB("Hi ha problemes per instanciar la classe del driver de servei $className");
+				throw new errorDriverDB("Class $className not exists in your PHP installation");
 
-             $this->service = new $className($this->cadConn, $usrAdmin, $passwdAdmin);
+             $this->service = new $className($this->properties->cadConn, $usrAdmin, $passwdAdmin);
              return $this->service;
       }
 
