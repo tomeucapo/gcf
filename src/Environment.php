@@ -43,8 +43,9 @@ class Environment
 
     /**
      * Get configuration instance
+     * @param string|null $appName
      * @return Environment
-     * @throws \Exception
+     * @throws Exception
      */
     public static function getInstance(?string $appName=null) : Environment
     {
@@ -69,12 +70,16 @@ class Environment
     }
 
     /**
+     * @return connectionPool|null
      * @throws \connectionTypeError
      */
-    public function InitDBConnections() : connectionPool
+    public function InitDBConnections() : ?connectionPool
     {
         // Inicialitzam les configuracions de les bases de dades
         $dbs = explode(",", $this->config->general->databases);
+        if (empty($dbs))
+            return null;
+
         $this->dbMain = $this->config->general->maindb;
 
         // Preinicialitza les connexions de BBDD que hi ha definides al fitxer de configuració
