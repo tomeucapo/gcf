@@ -75,6 +75,9 @@ class Environment
      */
     public function InitDBConnections() : ?connectionPool
     {
+        if ($this->config->general->databases === null)
+            return null;
+
         // Inicialitzam les configuracions de les bases de dades
         $dbs = explode(",", $this->config->general->databases);
         if (empty($dbs))
