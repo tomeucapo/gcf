@@ -34,7 +34,7 @@ abstract class ConfiguratorBase
      */
     private array $tmplClasses = [];
 
-    public DatabaseConnector $db;
+    public ?DatabaseConnector $db = null;
 
     protected Config $config;
 
@@ -144,7 +144,9 @@ abstract class ConfiguratorBase
     {
         $this->SetConfigBase($config);
         $this->initLoggers();
-        $this->initDBMain();
+
+        if ($this->config->general->maindb !== null)
+            $this->initDBMain();
 
         if (!$config->general->template_engines)
             throw new Exception("There not defined template_engines into configuration file!");
