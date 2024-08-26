@@ -32,8 +32,11 @@ class QuerySQL extends queryBase
              if(!$this->Eof()) 
              {
                 $fetchFunc = $this->assoc ? "ibase_fetch_assoc" : "ibase_fetch_row";
-                if(!($this->row = @$fetchFunc($this->result)))
+                if(!($row = @$fetchFunc($this->result)))
                    $this->myEof = true;
+
+                $this->row = ($row === false) ? [] : $row;
+
                 return true;
              }
               
@@ -44,13 +47,13 @@ class QuerySQL extends queryBase
      * @return resource
      * @throws errorQuerySQL
      */
-      public function Execute()
+      public function Execute() : mixed
       {
              $this->rows = 0;
              $this->rowActual = 0;
 
              // Si existeix una transaccio iniciada, aleshores executam aquesta sentencia dins la TX
-             if (isset($this->hndTrans) && $this->hndTrans !== null)
+             if (isset($this->hndTrans))
                  $cnx = $this->hndTrans;
              else $cnx = $this->connDb;
 
@@ -160,12 +163,10 @@ class QuerySQL extends queryBase
             return @ibase_blob_import($this->connDb, $fileDescriptor);
       }
       
-      public function LoadFromBLOB($rowBlob)
+      public function LoadFromBLOB($rowBlob) : string
       {
             $data = '';            
             $blobHandler = @ibase_blob_open($this->connDb, $rowBlob);
-
-            //error_log("$this->query from BLOB $rowBlob = $blobHandler");
 
             if (!$blobHandler)
                return $data;
@@ -177,7 +178,7 @@ class QuerySQL extends queryBase
             return $data;
       }
 
-      public function Commit($idTrans=null) 
+      public function Commit($idTrans=null) : bool
       {
 			 // Si ens pasen un ID de transsaccio llavors commitam aquella transaccio
 			 // si no, commitam totes les transaccions
@@ -188,7 +189,7 @@ class QuerySQL extends queryBase
 			 return @ibase_commit($idTrans);
       }
 
-      public function Rollback($idTrans=null) 
+      public function Rollback($idTrans=null)  : bool
       {
              unset($this->hndTrans);
              if ($idTrans === null)

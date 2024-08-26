@@ -8,6 +8,8 @@ use stdClass;
 
 class SQLQuery
 {
+    const DEFAULT_CACHED_QUERY_EXPIRE = 3600;
+
     /**
      * Query object
      * @var queryBase
@@ -94,7 +96,8 @@ class SQLQuery
                 $objectName = $queryParts[3];
             }
             $this->firmaLastQuery = "QUERY:$objectName:".sha1($query);
-            if (!($this->queryObj = $this->cache->get($this->firmaLastQuery)))
+            $cachedQuery = $this->cache->get($this->firmaLastQuery);
+            if ($cachedQuery === false)
             {
                 $this->initialGet = true;
                 $resCons = $this->consulta->Query($query);
@@ -102,10 +105,11 @@ class SQLQuery
                 $queryObj->consulta = $this->consulta;
                 $queryObj->rowTypes = $this->extractFieldTypes();
                 $queryObj->allRows = [ $this->consulta->row ];
-                $this->cache->set($this->firmaLastQuery, $queryObj);
+                $this->cache->set($this->firmaLastQuery, $queryObj, self::DEFAULT_CACHED_QUERY_EXPIRE);
                 $this->queryObj = $queryObj;
             } else {
                 unset($this->consulta);
+                $this->queryObj = $cachedQuery;
                 $this->consulta = $this->queryObj->consulta;
                 $this->consulta->row = $this->queryObj->allRows[++$this->rowCount];
             }

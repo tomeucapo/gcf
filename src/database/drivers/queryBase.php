@@ -10,24 +10,25 @@ abstract class queryBase
 	protected int $rowActual, $rows;
 	protected $result;
 	protected $error;
-	protected $blobID;
+	protected false|string|null $blobID = false;
 
-    public $row, $assoc, $query;
+    public array $row = [];
+    public bool $assoc = false;
+
+    public string $query;
 
 	public function __construct(dataBaseConn $db)
 	{
 		$this->dataBase = $db;
 		$this->connDb = $db->connDb;
 		$this->rowActual = $this->rows = -1;
-		$this->blobID = null;
-        $this->assoc = false;
 	}
 
     /**
      * @return mixed
      * @throws errorQuerySQL
      */
-	abstract public function Execute();
+	abstract public function Execute() : mixed;
 
 	abstract public function Skip();
 	abstract public function NumFields();
@@ -62,13 +63,13 @@ abstract class queryBase
      * @return mixed
      * @throws errorQuerySQL
      */
-	public function Query($queryStr)
+	public function Query($queryStr) : mixed
 	{
 		$this->query = $queryStr;
 		return $this->Execute();
 	}
 	
-    public function Go($numRow) 
+    public function Go($numRow) : void
     {
            if ($this->rowActual == $numRow) return;
            $this->rowActual = $numRow - 1;
@@ -80,22 +81,22 @@ abstract class queryBase
 	       }
     }
 
-    public function Eof() 
+    public function Eof() : bool
     {
            return($this->rows == 0 || $this->rowActual >= $this->rows);
     }
 
-    public function Record() 
+    public function Record() : int
     {
            return $this->rowActual;
     }
 	
-    public function LastRecord() 
+    public function LastRecord() : int
     {
            return $this->rows;
     }
 
-    public function LastError()
+    public function LastError() : string
     {
             return $this->error;
     }
@@ -121,4 +122,5 @@ abstract class queryBase
 	{
            $this->Close();
 	}
+
 }

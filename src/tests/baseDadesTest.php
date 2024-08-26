@@ -37,7 +37,7 @@ class baseDadesTest extends TestCase
      */
     public function testFieldProperties()
     {
-        $consulta = new SQLQuery($this->db, $this->cache);
+        $consulta = new SQLQuery($this->db);
         $consulta->fer_consulta("select dni_persona from absencia where codi=8");
 
         while(!$consulta->Eof())
