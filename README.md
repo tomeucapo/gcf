@@ -233,7 +233,7 @@ Pay attention because DataMapper use magic methods to access each field of table
 
 ```php
 /**
- * Class documentTbl
+ * Class User
  * @property int ID
  * @property string USER
  * @property string NAME
