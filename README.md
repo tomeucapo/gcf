@@ -128,13 +128,17 @@ The environment read configuration ini file that contains all application proper
   
 ### Database drivers
 
-Depends on your application properties GCF choose database backend driver to work with it. You can use SQL sentences using:
+Depends on your application properties GCF choose database backend driver to work with it. 
 
-- SQLQuery class that can execute any SQL sentence to your database.
-- Model abstraction layer:
-  - DataMapper class maps database table to PHP class that do operations over DB table.
-  - Record class that stores single table record into it.
-  - ResultSet class. Iterator class type that you iterate using foreach and fetch record by record on each step of foreach.
+You can use SQL sentences using:
+
+- **SQLQuery** class that can execute any SQL sentence to your database.
+
+Or create own models on database using Model abstraction data layer:
+
+- **DataMapper** class maps database table to PHP class that do operations over DB table.
+- **Record** class that stores single table record into it.
+- **ResultSet** class. Iterator class type that you iterate using foreach and fetch record by record on each step of foreach.
 
 #### Queries
 
@@ -154,6 +158,8 @@ while(!$consulta->Eof())
 
 $consulta->tanca_consulta();
 ```
+
+> ***db*** is a **DatabaseConnector** class type, can get from your Configurator class that extends from **ConfiguratorBase** with Configurator::getInstance()->db
 
 Without using ResultSet class. But this is a traditional fetch record until end of table without using primitives I recommend use ResultSet to avoid infinite loops:
 
@@ -265,3 +271,21 @@ $user = new User();
 $user->NAME="Pep";
 $user->Modifica(3);
 ```
+
+### Modules
+
+The GCF is model-view-controller framework and can help to create any API Controllers, Web Controllers, Views (Templates) and Models as described before.
+Modules are define controller part. The class **modulBase** and **controllerBase** defines this functionality and helps to create controllers as you need.
+To use modules you need instantiate Router to manage requests to modules.
+
+#### controllerBase
+
+This class defines controller base class. Its basic class that able to create new controllers for application. This clsas not support views only for basic controller like API controllers. Provides database connection context if is needed, logging context, application configuration context and basic filter input class that content incoming data from client.
+
+#### modulBase
+
+Extends from **controllerBase** and includes templates (view) functionality. Normally when you create view that returns dynamic HTML parsed from database data use modulBase.
+
+* modulBaseCRUD Defines all methods on specific database model (table). 
+* modulConfig Can load json configuration file for your controller.
+* modulBaseDefaultMethods Create dummy methods on controller that needed by controller interface. Only for some special cases.
