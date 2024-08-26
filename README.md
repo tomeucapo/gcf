@@ -110,54 +110,9 @@ And composer.json that contains project dependencies and general configuration. 
     "require": {}
 }
 ```
-### Application configuration properties
 
-You need configure application properties like database connection, cache, ... into cfg/properties_<env>.ini file:
+If you need application skeleton you can clone [application example](https://github.com/tomeucapo/gcf-myapp).
 
-```
-; General configuration
-[general]
-;databases         = myappdb
-;maindb            = myappdb
-template_engines  = twigEngine
 
-; Cache backend connection
-[cache]
-type=redis
-host=127.0.0.1
-port=6379
-dbindex=1
-
-; Datastore for DataStoreModel
-[datastore]
-dbindex=2
-
-;Job server
-[jobserver]
-type=Gearman
-host=127.0.0.1
-port=4730
-
-[paths]
-path.templates = "templates/"
-path.imatges = "static/img/"
-
-[logging]
-loggers=general
-general.log.writerName = "Stream"
-general.log.writerParams.stream =  "../logs/general.log"
-general.log.filterName = "Priority"
-general.log.filterParams.priority = 3
-general.log.filterParams.operator = ">="
-
-;[myappdb]
-;database.type            = firebird
-;database.auth            = user
-;database.params.host     = localhost
-;database.params.username = SYSDBA
-;database.params.password = masterkey
-;database.params.dbname   = myappdb.fdb
-;database.params.path     =
-```
 
 
