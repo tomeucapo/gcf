@@ -113,6 +113,18 @@ And composer.json that contains project dependencies and general configuration. 
 
 If you need application skeleton you can clone [application example](https://github.com/tomeucapo/gcf-myapp).
 
+### Basic usage
 
+You can use some components/classes of this library without initialize Environment and Configuration. But if you need create application with database access and cache need create environment and configuration.
+The environment read configuration ini file that contains all application properties and initializes all database pool connections and cache connections.
+
+- Environment
+
+  Singleton class that create application basic context, parse application properties file according environment deploy name and initialize database pool connection properties (connectionDb) (user, passwd, ...).
+
+- ConfiguratorBase
+
+  This is abstract class you need create own Configurator class extends of it, that add methods as your app need.
+  
 
 
