@@ -1,22 +1,33 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: tomeu
- * Date: 5/30/2018
- * Time: 11:35 AM
+ *
  */
 
 namespace gcf\database;
 
-use connectionTypeError;
-use gcf\database\drivers\errorDatabaseAutentication;
-use gcf\database\drivers\errorDatabaseConnection;
+use gcf\connectionTypeError;
+use Laminas\Config\Config;
 
-class connectionDb
+class ConnectionDb
 {
-    private $type;
-    public $connStr, $auth;
-    public $user, $passwd, $role;
+    private string $type;
+
+    /**
+     * @var string Specific connection database string
+     */
+    public string $connStr;
+
+    /**
+     * @var string Authentication type if is session or by configuration file
+     */
+    public string $auth;
+
+    public string $user, $passwd;
+
+    /**
+     * @var string Database user role name
+     */
+    public string $role;
 
     /**
      * @var DatabaseConnector
@@ -25,10 +36,10 @@ class connectionDb
 
     /**
      * connectionDb constructor.
-     * @param $config
+     * @param Config $config
      * @throws connectionTypeError
      */
-    public function __construct($config)
+    public function __construct(Config $config)
     {
         switch ($config->type)
         {
@@ -48,7 +59,7 @@ class connectionDb
                 break;
 
             default:
-                throw new connectionTypeError("El tipus {$config->type} no esta soportat!");
+                throw new connectionTypeError("El tipus $config->type no esta soportat!");
         }
         $this->type = $config->type;
         $this->auth = $config->auth;
@@ -65,8 +76,6 @@ class connectionDb
      * @param ConnectionMode $mode Mode of connection P = Persistent / N = Non-persistent
      * @return DatabaseConnector
      * @throws errorDriverDB
-     * @throws errorDatabaseConnection
-     * @throws errorDatabaseAutentication
      */
     public function getConnection(ConnectionMode $mode = ConnectionMode::NORMAL) : DatabaseConnector
     {
@@ -76,8 +85,7 @@ class connectionDb
     }
 
     /**
-     * @throws errorDatabaseAutentication
-     * @throws errorDatabaseConnection
+     * Reconnect this database connection
      * @throws errorDriverDB
      */
     public function reconnect() : void
@@ -86,6 +94,10 @@ class connectionDb
         $this->getConnection();
     }
 
+    /**
+     * Close this database connection
+     * @return void
+     */
     public function close() : void
     {
         if (isset($this->conn))

@@ -2,7 +2,7 @@
 namespace gcf;
 
 use Exception;
-use gcf\database\connectionDb;
+use gcf\database\ConnectionDb;
 use Laminas\Config;
 
 class Environment
@@ -18,11 +18,15 @@ class Environment
     public readonly string $envID;
     private readonly string $pathConf;
 
-    public ?connectionPool $dbPool = null;
+    public ?ConnectionPool $dbPool = null;
 
     private static Environment $_instance;
 
     /**
+     * Constructor that read environment variables and parse application configuration properties
+     *
+     * @param string $appName Application name
+     * @throws connectionTypeError
      * @throws Exception
      */
     private function __construct(string $appName)
@@ -42,7 +46,7 @@ class Environment
     }
 
     /**
-     * Get configuration instance
+     * Get Environment instance
      * @param string|null $appName
      * @return Environment
      * @throws Exception
@@ -56,6 +60,7 @@ class Environment
     }
 
     /**
+     * Parse application properties ini file
      * @throws Exception
      */
     private function ParseConfig(string $cfgFile) : void
@@ -70,10 +75,11 @@ class Environment
     }
 
     /**
-     * @return connectionPool|null
-     * @throws \connectionTypeError
+     * Initialize all database connection proper
+     * @return ConnectionPool|null
+     * @throws connectionTypeError
      */
-    public function InitDBConnections() : ?connectionPool
+    public function InitDBConnections() : ?ConnectionPool
     {
         if ($this->config->general->databases === null)
             return null;
@@ -85,11 +91,11 @@ class Environment
 
         $this->dbMain = $this->config->general->maindb;
 
-        // Preinicialitza les connexions de BBDD que hi ha definides al fitxer de configuració
-        $dbPool = connectionPool::getInstance($this->config->general->maindb);
+        // Pre-inicialitza les connexions de BBDD que hi ha definides al fitxer de configuració
+        $dbPool = ConnectionPool::getInstance($this->config->general->maindb);
         foreach($dbs as $dbname)
         {
-                $dbPool->$dbname = new connectionDb($this->config->$dbname->database);
+                $dbPool->$dbname = new ConnectionDb($this->config->$dbname->database);
         }
 
         return $dbPool;

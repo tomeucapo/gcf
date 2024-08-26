@@ -89,7 +89,7 @@ abstract class ConfiguratorBase
     {
         try {
             $dbMain = $this->config->general->maindb;
-            $dbPool = connectionPool::getInstance();
+            $dbPool = ConnectionPool::getInstance();
             $this->db = $dbPool->$dbMain->getConnection();
         } catch (errorDriverDB $e) {
             error_log($e->getMessage());
@@ -286,10 +286,10 @@ abstract class ConfiguratorBase
     /**
      * Get database connections pool
      * @param string $dbName
-     * @return connectionPool
+     * @return ConnectionPool
      */
-    public static function getDBPool(string $dbName = "") : connectionPool
+    public static function getDBPool(string $dbName = "") : ConnectionPool
     {
-        return connectionPool::getInstance($dbName);
+        return ConnectionPool::getInstance($dbName);
     }
 }

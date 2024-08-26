@@ -1,21 +1,21 @@
 <?php
 namespace gcf;
 
+use ErrorException;
+use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exception\AMQPChannelClosedException;
 use PhpAmqpLib\Message\AMQPMessage;
 
 class MQRPCClient
 {
-    private $connection;
-    private $channel;
-    private $callback_queue;
-    private $response;
-    private $corr_id;
-
-    private $queueName;
-    private $numberRetries = 0;
-
+    private AMQPStreamConnection $connection;
+    private AMQPChannel $channel;
+    private string $callback_queue;
+    private string $response;
+    private mixed $corr_id;
+    private string $queueName;
+    private int $numberRetries = 0;
     public function __construct(string $host, int $port, string $user, string $pass, string $queueName)
     {
         $this->queueName = $queueName;
@@ -28,10 +28,8 @@ class MQRPCClient
         );
 
         $this->CreateConsumer();
-
     }
-
-    private function CreateConsumer()
+    private function CreateConsumer() : void
     {
         $this->channel = $this->connection->channel();
         list($this->callback_queue, ,) = $this->channel->queue_declare(
@@ -56,7 +54,7 @@ class MQRPCClient
         );
     }
 
-    public function onResponse($rep)
+    public function onResponse($rep) : void
     {
         if ($rep->get('correlation_id') == $this->corr_id) {
             $this->response = $rep->body;
@@ -66,19 +64,20 @@ class MQRPCClient
     /**
      * Metode que ens permet cridar a una funció remota mitjançant una coa
      * @param $data
-     * @return null
+     * @return string
+     * @throws ErrorException
      */
-    public function call($data)
+    public function call($data) : string
     {
         $this->response = null;
         $this->corr_id = uniqid();
 
         $msg = new AMQPMessage(
             (string) $data,
-            array(
+            [
                 'correlation_id' => $this->corr_id,
                 'reply_to' => $this->callback_queue
-            )
+            ]
         );
 
         try {
@@ -97,7 +96,7 @@ class MQRPCClient
                 $this->call($data);
                 $this->numberRetries++;
             } else {
-                error_log("Number retries excedeed, aborting operation!");
+                error_log("Number retries exceeded, aborting operation!");
                 $this->numberRetries = 0;
                 throw $ex;
             }

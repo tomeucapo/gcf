@@ -7,27 +7,25 @@
 
 namespace gcf;
 
-use gcf\database\connectionDb;
+use gcf\database\ConnectionDb;
 
-class connectionPool
+class ConnectionPool
 {
-      private array $dbConns;
-      private string $user;
+      private array $dbConns = [];
+      private string $user = '';
       private string $dbMain;
 
-      private static ?connectionPool $instance = null;
+      private static ?ConnectionPool $instance = null;
       
       private function __construct(string $dbMain)
       {
-              $this->dbConns = [];
               $this->dbMain = $dbMain;
-              $this->user = '';
       }
       
-      public static function getInstance(string $dbMain="") : connectionPool
+      public static function getInstance(string $dbMain="") : ConnectionPool
       {
              if (self::$instance === null)
-                 self::$instance = new connectionPool($dbMain);
+                 self::$instance = new ConnectionPool($dbMain);
 
              return self::$instance;
       }
@@ -39,7 +37,7 @@ class connectionPool
 
     /**
      * @param $property
-     * @return connectionDb|null
+     * @return ConnectionDb|null
      */
       public function __get($property) 
       {              
@@ -48,7 +46,7 @@ class connectionPool
               return null;
       }
 
-      public function __set($property, connectionDb $value)
+      public function __set($property, ConnectionDb $value)
       {            
              $this->dbConns[$property] = $value;  
       }
@@ -58,6 +56,13 @@ class connectionPool
           return $this->user;
       }
 
+    /**
+     * Change all authentication properties of all connections with same user/passwd
+     * @param string $user
+     * @param string $passwd
+     * @param string $role
+     * @return void
+     */
       public function setAllAuth(string $user, string $passwd, string $role) : void
       {
              $this->user = $user;
