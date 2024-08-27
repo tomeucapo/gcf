@@ -12,11 +12,21 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-    - name: Settings
-      run: echo "Hello"
+    - name: Setup enviroment
+      run: |
+          phpVersion=8.1
+          sudo apt-get -y update
+          sudo update-alternatives --set php /usr/bin/php$(phpVersion)
+          sudo update-alternatives --set phar /usr/bin/phar$(phpVersion)
+          sudo update-alternatives --set phpdbg /usr/bin/phpdbg$(phpVersion)
+          sudo update-alternatives --set php-cgi /usr/bin/php-cgi$(phpVersion)
+          sudo update-alternatives --set phar.phar /usr/bin/phar.phar$(phpVersion)
+          sudo apt -y update
+          sudo apt -y install gearman-job-server libgearman8 php$(phpVersion)-imagick php$(phpVersion)-interbase php$(phpVersion)-gearman php$(phpVersion)-soap php$(phpVersion)-mbstring babel-minify
+          php -version
     
     - uses: actions/checkout@v4
 
