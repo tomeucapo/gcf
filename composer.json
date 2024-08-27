@@ -3,7 +3,7 @@
   "description": "General Corporate Framework",
   "type": "library",
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "ext-iconv": "*",
         "ext-gearman": "*",
         "ext-interbase": "*",
@@ -21,7 +21,7 @@
         "ext-bcmath": "*",
         "ext-intl": "*",
         "phpoffice/phpspreadsheet": "^2.2",
-        "mpdf/mpdf": "8.1.*",
+        "mpdf/mpdf": "8.2.*",
         "twig/twig": "^3.0",
         "laminas/laminas-config": "3.*",
         "laminas/laminas-log": "2.*",
