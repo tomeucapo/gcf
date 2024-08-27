@@ -27,7 +27,7 @@ class ConnectionDb
     /**
      * @var string Database user role name
      */
-    public string $role;
+    public string $role = "";
 
     /**
      * @var DatabaseConnector
