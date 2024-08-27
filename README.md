@@ -158,10 +158,11 @@ while(!$consulta->Eof())
 
 $consulta->tanca_consulta();
 ```
+this is a traditional fetch record until end of table using primitives.
 
 > ***db*** is a **DatabaseConnector** class type, can get from your Configurator class that extends from **ConfiguratorBase** with Configurator::getInstance()->db
 
-Without using ResultSet class. But this is a traditional fetch record until end of table without using primitives I recommend use ResultSet to avoid infinite loops:
+Other way is using ResultSet, simplify the code:
 
 ```php
 $myQuery = new SQLQuery($db);
