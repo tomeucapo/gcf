@@ -34,7 +34,6 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/php-amqplib/php-amqplib" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/php-http/message-factory" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpoffice/phpspreadsheet" />
-      <excludeFolder url="file://$MODULE_DIR$/vendor/phpoffice/phpword" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpseclib/phpseclib" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpunit/php-code-coverage" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/phpunit/php-file-iterator" />
@@ -78,11 +77,10 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/theseer/tokenizer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twig/intl-extra" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twig/twig" />
-      <excludeFolder url="file://$MODULE_DIR$/vendor/vanilla/garden-cli" />
-      <excludeFolder url="file://$MODULE_DIR$/vendor/vgrem/php-spo" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/voku/anti-xss" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/voku/portable-ascii" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/voku/portable-utf8" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/polyfill-php81" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
