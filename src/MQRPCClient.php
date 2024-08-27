@@ -12,7 +12,7 @@ class MQRPCClient
     private AMQPStreamConnection $connection;
     private AMQPChannel $channel;
     private string $callback_queue;
-    private string $response;
+    private ?string $response = null;
     private mixed $corr_id;
     private string $queueName;
     private int $numberRetries = 0;
