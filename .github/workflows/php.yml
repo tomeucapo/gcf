@@ -12,9 +12,22 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
+    - name: Setup enviroment
+      run: |
+          phpVersion=8.1
+          sudo apt-get -y update
+          sudo update-alternatives --set php /usr/bin/php8.1
+          sudo update-alternatives --set phar /usr/bin/phar8.1
+          sudo update-alternatives --set phpdbg /usr/bin/phpdbg8.1
+          sudo update-alternatives --set php-cgi /usr/bin/php-cgi8.1
+          sudo update-alternatives --set phar.phar /usr/bin/phar.phar8.1
+          sudo apt -y update
+          sudo apt -y install gearman-job-server libgearman8 php8.1-imagick php8.1-interbase php8.1-gearman php8.1-soap php8.1-mbstring babel-minify
+          php -version
+    
     - uses: actions/checkout@v4
 
     - name: Validate composer.json and composer.lock
