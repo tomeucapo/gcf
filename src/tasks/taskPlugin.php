@@ -8,14 +8,16 @@
 
 namespace gcf\tasks;
 
-use app\configurador;
+use Exception;
+use gcf\Environment;
+use stdClass;
 
 abstract class taskPlugin
 {
     const DEFAULT_TASK_TIMEOUT = 30000;
     const DEFAULT_PING_TIMEOUT = 300;
 
-    protected $jobHandle;
+    protected string $jobHandle;
     protected $jobID;
 
     protected TaskPriority $priority;
@@ -74,6 +76,7 @@ abstract class taskPlugin
      * @param string $taskName
      * @param array $args
      * @return mixed
+     * @throws Exception
      */
     public function __call(string $taskName, array $args = [])
     {
@@ -83,7 +86,7 @@ abstract class taskPlugin
 
         if ($this->mode === TaskExecutionMode::BACKGROUND)
         {
-            $cache = configurador::getInstance()->getCache();
+            $cache = Environment::getInstance()->appCfg->getCache();
 
             $jobStatus = new \stdClass();
             $jobStatus->handle = $this->jobHandle;
@@ -100,12 +103,13 @@ abstract class taskPlugin
      * Get job status
      * @param string $taskName
      * @param $jobHandle
-     * @return \stdClass
-     * @throws \Exception
+     * @return StdClass
+     * @throws Exception
      */
     public function getStatus(string $taskName, $jobHandle) : \stdClass
     {
-        $cache = configurador::getInstance()->getCache();
+        $cache = Environment::getInstance()->appCfg->getCache();
+
         $taskKey = self::TaskKey($taskName, $jobHandle);
         $jobStatusInfo = $cache->get($taskKey);
 
@@ -127,14 +131,15 @@ abstract class taskPlugin
      * Get job results
      * @param $taskName
      * @param $jobHandle
-     * @return mixed|null
+     * @return mixed
      * @throws errorTaskResponse
+     * @throws Exception
      */
-    public function getResults($taskName, $jobHandle)
+    public function getResults($taskName, $jobHandle) : mixed
     {
         if (!$this->jobResult)
         {
-            $cache = configurador::getInstance()->getCache();
+            $cache = Environment::getInstance()->appCfg->getCache();
             $jobStatusInfo = $cache->get(self::TaskKey($taskName, $jobHandle));
 
             if (empty($jobStatusInfo))

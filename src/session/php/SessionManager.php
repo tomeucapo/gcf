@@ -30,12 +30,12 @@ class SessionManager extends SessionManagerBase
         return (isset($_SESSION[$name]));
     }
 
-    public function Id()
+    public function Id() : false|string
     {
         return(@session_id());
     }
 
-    public function SetSessionID($id)
+    public function SetSessionID($id) : void
     {
         @session_id($id);
     }
@@ -44,7 +44,7 @@ class SessionManager extends SessionManagerBase
      * Start new session
      * @throws SessionException
      */
-    public function Start()
+    public function Start() : void
     {
         @session_name($this->name);
         @session_cache_expire($this->expire);
@@ -56,7 +56,7 @@ class SessionManager extends SessionManagerBase
      * End session
      * @throws SessionException
      */
-    public function End()
+    public function End() : void
     {
         @session_name($this->name);
         @session_start();

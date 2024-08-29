@@ -20,6 +20,8 @@ class Environment
 
     public ?ConnectionPool $dbPool = null;
 
+    public readonly ?ConfiguratorBase $appCfg;
+
     private static Environment $_instance;
 
     /**
@@ -84,7 +86,7 @@ class Environment
         if ($this->config->general->databases === null)
             return null;
 
-        // Inicialitzam les configuracions de les bases de dades
+        // Inicialitzem les configuracions de les bases de dades
         $dbs = explode(",", $this->config->general->databases);
         if (empty($dbs))
             return null;
@@ -99,5 +101,10 @@ class Environment
         }
 
         return $dbPool;
+    }
+
+    public function ApplicationConfigurator(ConfiguratorBase $cfg) : void
+    {
+        $this->appCfg = $cfg;
     }
 }
