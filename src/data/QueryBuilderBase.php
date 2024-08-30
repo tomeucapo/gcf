@@ -2,29 +2,34 @@
 
 namespace gcf\data;
 
-use app\configurador;
 use gcf\cache\cachePlugin;
+use gcf\ConfiguratorBase;
 use gcf\database\errorDriverDB;
 use gcf\database\models\DataMapper;
 use gcf\database\SQLQuery;
+use gcf\Environment;
 use Laminas\Log\Logger;
+use stdClass;
 
 abstract class QueryBuilderBase implements QueryBuilderInterface
 {
     protected ?DataMapper $tbl = null;
 
-    protected \stdClass $filtres;
+    protected StdClass $filtres;
 
-    protected configurador $configurador;
+    protected ConfiguratorBase $configurador;
 
     protected cachePlugin $cache;
 
     protected ?Logger $logger;
 
-    public function __construct(\stdClass $filtres)
+    /**
+     * @throws \Exception
+     */
+    public function __construct(StdClass $filtres)
     {
         $this->filtres = $filtres;
-        $this->configurador = configurador::getInstance();
+        $this->configurador = Environment::getInstance()->GetAppConfigurator();
         $this->cache = $this->configurador->getCache();
         $this->logger = $this->configurador->getLoggerObject();
     }

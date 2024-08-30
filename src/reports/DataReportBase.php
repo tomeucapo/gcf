@@ -2,9 +2,9 @@
 
 namespace gcf\reports;
 
-use app\configurador;
 use gcf\cache\cachePlugin;
 use gcf\database\DatabaseConnector;
+use gcf\Environment;
 use gcf\web\ws\JSONEncodingError;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -58,7 +58,6 @@ abstract class DataReportBase implements DataReport
         protected array $metaInfo=[];
         protected int $typeOut;
 
-        protected configurador $configurador;
         private string $orientation;
         private int $pageSize;
 
@@ -326,6 +325,7 @@ abstract class DataReportBase implements DataReport
     /**
      * @throws JSONEncodingError
      * @throws Exception
+     * @throws \Exception
      */
         public function GetData() : void
         {
@@ -381,7 +381,7 @@ abstract class DataReportBase implements DataReport
 
                if ($this->typeOut == self::PDF_OUT)
                {
-                  $configParms =  $this->configurador->getConfig();
+                  $configParms = Environment::getInstance()->config;
                   $objWriter = new Mpdf($this->XSLEncode());
                   $objWriter->setTempDir($configParms->paths->path->temp);
 

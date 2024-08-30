@@ -2,23 +2,30 @@
 
 namespace gcf\tests\data\models;
 
-use app\configurador;
+use Exception;
 use gcf\data\models\DataModelStore;
 use gcf\data\models\DataStore;
+use gcf\Environment;
 use PHPUnit\Framework\TestCase;
 
 class DataModelStoreTest extends TestCase
 {
     const DB_INDEX = 2;
 
+    /**
+     * @throws Exception
+     */
     private function InitDataStore() : DataModelStore
     {
-        $storage = configurador::getInstance()->getCache(self::DB_INDEX);
+        $storage = Environment::getInstance()->GetAppConfigurator()->getCache(self::DB_INDEX);
         $dataStore = new DataStore($storage);
 
         return new DataModelStore("TEST", $dataStore);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCreate() : void
     {
         $myTable = $this->InitDataStore();

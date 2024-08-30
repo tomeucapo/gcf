@@ -107,4 +107,14 @@ class Environment
     {
         $this->appCfg = $cfg;
     }
+
+    /**
+     * @throws Exception
+     */
+    public function GetAppConfigurator() : ConfiguratorBase
+    {
+        if ($this->appCfg === null)
+            throw new Exception("You not initialized application configurator in Environment!");
+        return $this->appCfg;
+    }
 }

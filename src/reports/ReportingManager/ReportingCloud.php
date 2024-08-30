@@ -2,12 +2,13 @@
 
 namespace gcf\reports\ReportingManager;
 
-use app\configurador;
+use Exception;
+use gcf\Environment;
 use Laminas\Log\Logger;
 
 class ReportingCloud implements ReportingManagerInterface
 {
-    private $reportingCloud;
+    private \TextControl\ReportingCloud\ReportingCloud $reportingCloud;
 
     private array $mergeSettings = [];
 
@@ -18,20 +19,22 @@ class ReportingCloud implements ReportingManagerInterface
     private Logger $logger;
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(string $reportName)
     {
-        $this->logger = configurador::getLogger();
+        $cfg = Environment::getInstance()->GetAppConfigurator();
+
+        $this->logger = $cfg->getLoggerObject();
         $this->reportName = $reportName;
 
-        $apiKey = configurador::getInstance()->getConfig()->reporting->apikey;
+        $apiKey = $cfg->getConfig()->reporting->apikey;
 
         if (empty($apiKey))
-            throw new \Exception("ReportingCloud needs reporting.apiKey to run");
+            throw new Exception("ReportingCloud needs reporting.apiKey to run");
 
         $this->reportingCloud = new \TextControl\ReportingCloud\ReportingCloud([
-            'api_key' => configurador::getInstance()->getConfig()->reporting->apikey,
+            'api_key' => $apiKey,
         ]);
 
         $this->mergeSettings = [
@@ -47,24 +50,28 @@ class ReportingCloud implements ReportingManagerInterface
             'creator_application' => 'Personal web'
         ];
 
-        $this->tmpDir = configurador::getInstance()->getConfig()->paths->path->temp;
+        $this->tmpDir = $cfg->getConfig()->paths->path->temp;
         if (empty($this->tmpDir))
             $this->tmpDir = sys_get_temp_dir();
     }
 
-    public function SetTitle(string $titol)
+    /**
+     * @param string $titol
+     * @return void
+     */
+    public function SetTitle(string $titol) : void
     {
         $this->mergeSettings['document_subject'] = $titol;
         $this->mergeSettings['document_title'] = $titol;
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public function Merge($data, $template, $format)
+    public function Merge(array $data, string $template, string $format) : ?string
     {
         if (!$this->reportingCloud->templateExists($template))
-            throw new \Exception("$template not found in Reporting Cloud server");
+            throw new Exception("$template not found in Reporting Cloud server");
 
         $fileNames = [];
 
@@ -77,7 +84,7 @@ class ReportingCloud implements ReportingManagerInterface
             $fileNames[] = $destinationFilename;
             file_put_contents($destinationFilename, $binaryData);
 
-            $this->logger->debug("Merged {$template} was written to {$destinationFilename}");
+            $this->logger->debug("Merged $template was written to $destinationFilename");
         }
 
         if (count($fileNames) > 0)
@@ -93,7 +100,7 @@ class ReportingCloud implements ReportingManagerInterface
             foreach ($this->reportingCloud->getTemplateList() as $template) {
                 $templates[$template["template_name"]] = $template["template_name"];
             }
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             $this->logger->err("Error while getting template list from server: ".$ex->getMessage());
             return [];
         }
@@ -101,7 +108,7 @@ class ReportingCloud implements ReportingManagerInterface
         return $templates;
     }
 
-    public function Thumbnails($template) : array
+    public function Thumbnails(string $template) : array
     {
         return $this->reportingCloud->getTemplateThumbnails($template, 1,1,1, "png");
     }
