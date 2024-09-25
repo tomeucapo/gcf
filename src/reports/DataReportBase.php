@@ -95,7 +95,10 @@ abstract class DataReportBase implements DataReport
                $this->header = $header;
         }
 
-        protected function DefineColumns(array $definitions) : void
+    /**
+     * @throws \Exception
+     */
+    protected function DefineColumns(array $definitions) : void
         {
             $headers = new ReportHeaders();
 
@@ -105,10 +108,17 @@ abstract class DataReportBase implements DataReport
                     $column = new ReportColumn($columna["type"]);
                 else $column = new ReportColumn();
 
+                if (!array_key_exists("key", $columna))
+                    throw new \Exception("You need specify key of column!");
+
+                if (!array_key_exists("label", $columna))
+                    throw new \Exception("You need specify label of column!");
 
                 $column->key = $columna["key"];
                 $column->label = $columna["label"];
-                $column->width = $columna["width"];
+
+                if (array_key_exists("width", $columna))
+                    $column->width = $columna["width"];
 
                 if (array_key_exists("formatter", $columna))
                     $column->formatter = $columna["formatter"];
