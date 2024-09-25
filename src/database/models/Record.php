@@ -61,6 +61,9 @@ class Record
 
     public function __get($property)
     {
+        if (!array_key_exists($property, $this->camps))
+            return null;
+
         if (isset($this->camps[$property]))
         {
             $type = $this->getType($property);
