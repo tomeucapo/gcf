@@ -10,7 +10,6 @@ namespace gcf\web\controllers;
 use gcf\ConfiguratorBase;
 use gcf\web\templates\modulTemplate;
 use gcf\web\templates\templateEngine;
-use Laminas\Json\Json;
 
 /**
  * Class modulBase
@@ -68,27 +67,39 @@ abstract class modulBase extends controllerBase implements modul
             else
                 $this->tmpl = $cfg->tmpl;
 
-            if ($this->tmpl !== null)
-                $this->tmpl->readTemplatesFromFile($tmplFileName);
+            $this->tmpl->readTemplatesFromFile($tmplFileName);
         }
 
         $this->config = $this->LoadConfig($name);
     }
 
-
-
-    public function addTemplate(modulTemplate $myTemplate)
+    /**
+     * Add template object into controller to use it
+     * @param modulTemplate $myTemplate
+     * @return void
+     */
+    public function addTemplate(modulTemplate $myTemplate) : void
     {
            $this->templates[$myTemplate->name] = $myTemplate;
     }
 
-    public function addTemplateByName(string $templateName)
+    /**
+     * Add template block by name to use it
+     * @param string $templateName
+     * @return void
+     */
+    public function addTemplateByName(string $templateName) : void
     {
-        if ($this->tmpl !== null)
-            $this->templates[$templateName] = new modulTemplate($this->tmpl, $templateName);
+        $this->templates[$templateName] = new modulTemplate($this->tmpl, $templateName);
     }
 
-    public function renderVars($templateName, array $bindVars)
+    /**
+     * Render all bind variables into specified template name
+     * @param string $templateName
+     * @param array $bindVars
+     * @return void
+     */
+    public function renderVars(string $templateName, array $bindVars) : void
     {
            if (!array_key_exists($templateName, $this->templates))
                return;
@@ -96,11 +107,17 @@ abstract class modulBase extends controllerBase implements modul
            $this->templates[$templateName]->renderVars($bindVars);
     }
 
-    public function renderVar(string $templateName, string $varName, $value)
+    /**
+     * Render single variable into selected template
+     * @param string $templateName
+     * @param string $varName
+     * @param $value
+     * @return void
+     */
+    public function renderVar(string $templateName, string $varName, $value) : void
     {
-        if (!array_key_exists($templateName, $this->templates)) {
+        if (!array_key_exists($templateName, $this->templates))
             return;
-        }
 
         $this->templates[$templateName]->renderVar($varName, $value);
     }
@@ -111,6 +128,9 @@ abstract class modulBase extends controllerBase implements modul
      */
     public function ParsedResult(string $templateName="principal"): string
     {
+        if (!array_key_exists($templateName, $this->templates))
+            return "";
+
         return "".$this->templates[$templateName];
     }
 
@@ -125,8 +145,8 @@ abstract class modulBase extends controllerBase implements modul
         $any_comp = "[";
         if (!empty($this->anys_disponibles))
         {
-            if (!in_array((string)date("Y"), $this->anys_disponibles))
-                $this->anys_disponibles[] = (string)date("Y");
+            if (!in_array(date("Y"), $this->anys_disponibles))
+                $this->anys_disponibles[] = date("Y");
 
             foreach ($this->anys_disponibles as $any)
                 $any_comp .= "['$any','$any'],";
