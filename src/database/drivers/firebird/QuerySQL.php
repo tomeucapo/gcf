@@ -117,8 +117,11 @@ class QuerySQL extends queryBase
       {
           $queryKey = sha1($this->query);
 
-          if (!empty($this->typesDefinition[$queryKey]))
+          if (array_key_exists($queryKey, $this->typesDefinition) &&
+              array_key_exists($num, $this->typesDefinition[$queryKey]))
+          {
               return $this->typesDefinition[$queryKey][$num][$attribute];
+          }
 
           $this->typesDefinition[$queryKey][$num] = @ibase_field_info($this->result, $num);
           return $this->typesDefinition[$queryKey][$num][$attribute];
@@ -133,7 +136,7 @@ class QuerySQL extends queryBase
       
       public function GetFieldType($field)
       {
-	 $def =  @ibase_field_info($this->result, $field);
+	     $def =  @ibase_field_info($this->result, $field);
          return $def["type"];
       }
 

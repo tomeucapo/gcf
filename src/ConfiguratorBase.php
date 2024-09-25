@@ -292,4 +292,6 @@ abstract class ConfiguratorBase
     {
         return ConnectionPool::getInstance($dbName);
     }
+
+    abstract public function InitPermissions(int $userId, string $moduleName) : void;
 }
