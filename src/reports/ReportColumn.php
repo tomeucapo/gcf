@@ -29,6 +29,8 @@ class ReportColumn
 
     private string $key;
 
+    public string $filter = "";
+
     private ReportColumnType $type;
 
     public function __construct(ReportColumnType $type=ReportColumnType::GENERAL_FORMAT)
