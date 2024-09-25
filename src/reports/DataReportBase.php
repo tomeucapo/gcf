@@ -105,13 +105,23 @@ abstract class DataReportBase implements DataReport
                     $column = new ReportColumn($columna["type"]);
                 else $column = new ReportColumn();
 
+
                 $column->key = $columna["key"];
                 $column->label = $columna["label"];
                 $column->width = $columna["width"];
-                $column->formatter = $columna["formatter"];
-                $column->filter = $columna["filter"];
-                $column->className = $columna["className"];
-                $column->sortable = $columna["sortable"];
+
+                if (array_key_exists("formatter", $columna))
+                    $column->formatter = $columna["formatter"];
+
+                if (array_key_exists("filter", $columna))
+                    $column->filter = $columna["filter"];
+
+                if (array_key_exists("className", $columna))
+                    $column->className = $columna["className"];
+
+                if (array_key_exists("sort", $columna))
+                    $column->sortable = $columna["sortable"];
+
                 if (array_key_exists("children", $columna))
                     $columna->children = $columna["children"];
 
@@ -145,7 +155,7 @@ abstract class DataReportBase implements DataReport
         {
                // Pasam a UTF-8 per que les funcions json_encode necessita dades en format UTF-8
            
-               array_walk_recursive($data, function (&$item, $key) { if (is_string($item)) $item = mb_encode_numericentity($item, array (0x80, 0xffff, 0, 0xffff), 'UTF-8'); });
+               array_walk_recursive($data, function (&$item) { if (is_string($item)) $item = mb_encode_numericentity($item, array (0x80, 0xffff, 0, 0xffff), 'UTF-8'); });
 
                $this->data[] = $data;
         }
@@ -264,7 +274,7 @@ abstract class DataReportBase implements DataReport
                                   // TODO: Review this str_replace, is dirty trick!
 
                                   $sheet->getStyle([$col, $row])->applyFromArray(self::$cellStylesDetails);
-                                  if ($colDefs[$col-1]->type === ReportColumn::NUMBER_FORMAT)
+                                  if ($colDefs[$col-1]->type === ReportColumnType::NUMBER_FORMAT)
                                   {
                                       $sheet->getStyle([$col, $row])->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
                                       $sheet->setCellValue([$col, $row], str_replace(",",".",$reg[$field]));
@@ -308,11 +318,11 @@ abstract class DataReportBase implements DataReport
                   return $objExcel;
         }
         
-        private function doExecute(): \stdClass
+        private function doExecute(): stdClass
         {
                 $this->Execute();                                      
                        
-                $reportData = new \stdClass();
+                $reportData = new stdClass();
                 $reportData->header   = $this->header;
                 $reportData->data     = $this->data;
                 $reportData->metaInfo = $this->metaInfo;

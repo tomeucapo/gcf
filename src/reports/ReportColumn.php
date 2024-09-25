@@ -8,6 +8,8 @@
 
 namespace gcf\reports;
 
+use stdClass;
+
 /**
  * Class ReportColumn
  * @property string key Key of field, is a field name.
@@ -21,27 +23,25 @@ namespace gcf\reports;
 
 class ReportColumn
 {
-    const GENERAL_FORMAT = 0;
-    const NUMBER_FORMAT = 1;
+    private array $validProps = ["key","label","width","formatter","className","filter", "sortable", "children"];
 
-    private $column, $validProps, $key;
-    private $filter;
-    private $type;
+    private array $column = [];
 
-    public function __construct($type=self::GENERAL_FORMAT)
-    {
-        $this->filter = false;
-        $this->type = $type;
-        $this->column = [];
-        $this->validProps = array("key","label","width","formatter","className","filter", "sortable", "children");
-    }
+    private string $key;
 
-    public function setFormat($type)
+    private ReportColumnType $type;
+
+    public function __construct(ReportColumnType $type=ReportColumnType::GENERAL_FORMAT)
     {
         $this->type = $type;
     }
 
-    public function getFormat($type)
+    public function setFormat(ReportColumnType $type) : void
+    {
+        $this->type = $type;
+    }
+
+    public function getFormat() : ReportColumnType
     {
         return $this->type;
     }
@@ -61,6 +61,12 @@ class ReportColumn
         return null;
     }
 
+    /**
+     * @param $property
+     * @param $value
+     * @return void
+     * @throws UnknownProperty
+     */
     public function __set($property, $value)
     {
         if (!in_array($property, $this->validProps))
@@ -75,15 +81,15 @@ class ReportColumn
         $this->column[$property] = $value;
     }
 
-    public function getDefinition()
+    public function getDefinition() : stdClass
     {
-        $def = new \stdClass();
+        $def = new stdClass();
         $def->type = $this->type;
         $def->props = $this->column;
         return $def;
     }
 
-    public function getKey()
+    public function getKey() : string
     {
         return $this->key;
     }
