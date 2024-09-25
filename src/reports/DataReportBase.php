@@ -289,14 +289,14 @@ abstract class DataReportBase implements DataReport
                                       $sheet->getStyle([$col, $row])->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
                                       $sheet->setCellValue([$col, $row], str_replace(",",".",$reg[$field]));
                                   } else {
-                                      if ($colDefs[$col-1]->props["formatter"] === "currencyEur")
+                                      if (array_key_exists("formatter",$colDefs[$col-1]->props) && $colDefs[$col-1]->props["formatter"] === "currencyEur")
                                           $sheet->getStyle([$col, $row])->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
                                       else
-                                          if ($colDefs[$col-1]->props["className"] === "align-right")
+                                          if (array_key_exists("className",$colDefs[$col-1]->props) && $colDefs[$col-1]->props["className"] === "align-right")
                                               $sheet->getStyle([$col, $row])->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                                           else
                                               $sheet->getStyle([$col, $row])->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                                      $sheet->setCellValue([$col, $row], $reg[$field]);
+                                      $sheet->setCellValue([$col, $row], array_key_exists($field, $reg) ? $reg[$field] : "");
                                   }
 
                                   if ($row%2)
