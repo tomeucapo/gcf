@@ -2,7 +2,6 @@
 namespace gcf\database\drivers\firebird;
 
 use gcf\database\drivers\dataBaseConn;
-use gcf\database\drivers\errorDatabaseAutentication;
 use gcf\database\drivers\errorQuerySQL;
 use gcf\database\drivers\errorTransSQL;
 use gcf\database\drivers\queryBase;
@@ -53,11 +52,9 @@ class QuerySQL extends queryBase
              $this->rowActual = 0;
 
              // Si existeix una transaccio iniciada, aleshores executam aquesta sentencia dins la TX
-             if (isset($this->hndTrans))
-                 $cnx = $this->hndTrans;
-             else $cnx = $this->connDb;
+          $cnx = $this->hndTrans ?? $this->connDb;
 
-            if($this->result !== null && gettype($this->result) === "resource")
+          if($this->result !== null && gettype($this->result) === "resource")
             {
                   @ibase_free_result($this->result);
             }
