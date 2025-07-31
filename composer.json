@@ -24,13 +24,13 @@
         "mpdf/mpdf": "8.2.*",
         "twig/twig": "^3.0",
         "laminas/laminas-config": "3.*",
-        "laminas/laminas-log": "2.*",
         "laminas/laminas-session": "2.*",
         "laminas/laminas-http": "2.*",
         "laminas/laminas-json": "3.*",
         "php-amqplib/php-amqplib": "2.*",
         "textcontrol/textcontrol-reportingcloud" : "^4.0",
-        "twig/intl-extra": "^3.7"
+        "twig/intl-extra": "^3.7",
+        "monolog/monolog": "@stable"
     },
     
 	"require-dev": {

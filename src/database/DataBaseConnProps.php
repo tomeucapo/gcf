@@ -4,12 +4,12 @@ namespace gcf\database;
 
 use Serializable;
 
-class DataBaseConnProps implements Serializable
+readonly class DataBaseConnProps implements Serializable
 {
-    public readonly string $passwd;
+    public string $passwd;
 
-    public readonly string $user;
-    public readonly string $cadConn;
+    public string $user;
+    public string $cadConn;
 
     public function __construct(string $user, string $passwd, string $cadConn)
     {

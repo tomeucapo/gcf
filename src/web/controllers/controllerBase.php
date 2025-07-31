@@ -5,7 +5,7 @@ namespace gcf\web\controllers;
 use gcf\ConfiguratorBase;
 use gcf\database\DatabaseConnector;
 use Laminas\Config\Config;
-use Laminas\Log\Logger;
+use Monolog\Logger;
 use stdClass;
 /**
  * Class controllerBase

@@ -7,7 +7,7 @@ use gcf\database\DatabaseConnector;
 use gcf\database\SQLQuery;
 use gcf\database\drivers\errorQuerySQL;
 use gcf\database\errorDriverDB;
-use Laminas\Log\Logger;
+use Monolog\Logger;
 
 /**
  * Class taulaBD
@@ -260,7 +260,7 @@ abstract class DataMapper
 
         if (empty($this->camps))
         {
-            $this->logger?->debug("[" . __CLASS__ . "::" . __METHOD__ . "] {$this->nomTaula} No hi ha dades d'entrada a cap camp de la taula");
+            $this->logger?->debug("[" . __CLASS__ . "::" . __METHOD__ . "] $this->nomTaula No hi ha dades d'entrada a cap camp de la taula");
             return false;
         }
         $this->lastQuery = $this->converter->ArrayToSQL(ConverterType::SQLUpdate, $this->camps);
@@ -323,7 +323,7 @@ abstract class DataMapper
      * @param string $id Especifica la clau primaria
      * @param string $cond Es un condicional de tipus SQL
      * @param string $orderBy Ordre de la select DESC o ASC
-     * @return bool Torna true si ha anat bé o false si no, aquest metode actualment o bé torna true o torna una excepció
+     * @return bool Torna true si ha anat bé o false si no, aquest metode actualment o bé torna true o torna una excepció.
      * @throws errorQuerySQL Error de nivell de SQL
      * @throws noDataFound Si no ha trobat cap registre
      * @throws noPrimaryKey Si no ha pogut fer el condicional en base de la PK.
@@ -345,7 +345,7 @@ abstract class DataMapper
         } else if ($cond)
             $cond = "where " . $cond;
 
-        $query = "select * from {$this->nomTaula} " . $cond . ' ' . $orderBy;
+        $query = "select * from $this->nomTaula " . $cond . ' ' . $orderBy;
 
         try {
             if ($this->autoCommit) $cons->ferCommit();
@@ -410,10 +410,11 @@ abstract class DataMapper
      * @param $id mixed PK of record
      * @param bool $unRegistre By default, delete only selected record. Otherwise can delete all records if is false.
      * @return bool
-     * @throws noPrimaryKey PK definition problems
+     * @throws errorDriverDB
      * @throws errorQuerySQL
+     * @throws noPrimaryKey PK definition problems
      */
-    public function Borra($id, $unRegistre = true)
+    public function Borra($id, $unRegistre = true): bool
     {
         $where = '';
         if ($unRegistre) {
@@ -430,7 +431,7 @@ abstract class DataMapper
         if ($this->autoCommit)
             $idTrans = $cons->iniciTrans();
 
-        $queryStr = "delete from {$this->nomTaula} " . $where;
+        $queryStr = "delete from $this->nomTaula " . $where;
         $cons->fer_consulta($queryStr);
         $this->lastQuery = $queryStr;
 
@@ -467,7 +468,7 @@ abstract class DataMapper
             $where = "where " . $where;
 
         $cons = new SQLQuery($this->db);
-        $cons->fer_consulta("select extract(year from $camp_data) from {$this->nomTaula} $where group by 1;");
+        $cons->fer_consulta("select extract(year from $camp_data) from $this->nomTaula $where group by 1;");
 
         while (!$cons->Eof())
         {
