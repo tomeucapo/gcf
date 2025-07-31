@@ -414,7 +414,7 @@ abstract class DataMapper
      * @throws errorQuerySQL
      * @throws noPrimaryKey PK definition problems
      */
-    public function Borra($id, $unRegistre = true): bool
+    public function Borra($id, $unRegistre = true)
     {
         $where = '';
         if ($unRegistre) {
