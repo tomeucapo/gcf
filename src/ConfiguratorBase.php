@@ -18,7 +18,7 @@ use gcf\web\templates\templateEngine;
 use Laminas;
 use Laminas\Config\Config;
 use Monolog\Logger;
-use MonoLog\Handler\StreamHandler;
+use Monolog\Handler\StreamHandler;
 use Laminas\ServiceManager\ServiceManager;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
