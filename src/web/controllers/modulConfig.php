@@ -1,7 +1,7 @@
 <?php
 namespace gcf\web\controllers;
 
-use Laminas\Json\Json;
+use gcf\utils\JsonHelper;
 
 trait modulConfig
 {
@@ -17,7 +17,7 @@ trait modulConfig
             return $cachedCfg;
 
         $fileConf = file_get_contents($this->configurador->dirs["module_cfgs"] . $name . ".json");
-        $config = Json::decode(utf8_encode($fileConf), Json::TYPE_ARRAY);
+        $config = JsonHelper::decode(utf8_encode($fileConf));
 
         $cache->set("MODULE_CFG:$name", $config, 3600);
 
