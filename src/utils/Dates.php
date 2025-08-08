@@ -12,7 +12,7 @@ class Dates
 {
     private static array $months = [];
 
-    private function AnchoredDates(DateTime $start, DateTime $end): array
+    public function AnchoredDates(DateTime $start, DateTime $end): array
     {
         $start = clone $start;
         $end = clone $end;
