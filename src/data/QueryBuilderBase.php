@@ -8,7 +8,7 @@ use gcf\database\errorDriverDB;
 use gcf\database\models\DataMapper;
 use gcf\database\SQLQuery;
 use gcf\Environment;
-use Monolog\Logger;
+use Laminas\Log\Logger;
 use stdClass;
 
 abstract class QueryBuilderBase implements QueryBuilderInterface

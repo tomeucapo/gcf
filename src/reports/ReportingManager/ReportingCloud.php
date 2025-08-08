@@ -4,7 +4,7 @@ namespace gcf\reports\ReportingManager;
 
 use Exception;
 use gcf\Environment;
-use Monolog\Logger;
+use Laminas\Log\Logger;
 
 class ReportingCloud implements ReportingManagerInterface
 {
@@ -101,7 +101,7 @@ class ReportingCloud implements ReportingManagerInterface
                 $templates[$template["template_name"]] = $template["template_name"];
             }
         } catch (Exception $ex) {
-            $this->logger->error("Error while getting template list from server: ".$ex->getMessage());
+            $this->logger->err("Error while getting template list from server: ".$ex->getMessage());
             return [];
         }
 

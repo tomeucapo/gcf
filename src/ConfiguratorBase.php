@@ -17,9 +17,7 @@ use gcf\tasks\taskPlugin;
 use gcf\web\templates\templateEngine;
 use Laminas;
 use Laminas\Config\Config;
-use Monolog\Handler\FilterHandler;
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+use Laminas\Log\Logger;
 use Laminas\ServiceManager\ServiceManager;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -47,7 +45,7 @@ abstract class ConfiguratorBase
     /**
      * @var string action or module name
      */
-    protected string $module = "";
+    protected string $accio;
 
     /**
      * @var array
@@ -66,6 +64,7 @@ abstract class ConfiguratorBase
     protected function __construct()
     {
         $this->serviceManager = new ServiceManager();
+	    $this->accio = "";
     }
 
     /**
@@ -98,12 +97,16 @@ abstract class ConfiguratorBase
         }
     }
 
-    private function InitLogger(string $loggerName) : Logger
+    private function InitLogger(string $loggerName) : Laminas\Log\Logger
     {
         $logOptions = $this->config->logging->$loggerName;
 
-        $logger = new Logger($loggerName);
-        $logger->pushHandler(new StreamHandler($logOptions->log->stream->file, $logOptions->log->stream->priority));
+        $writer = new Laminas\Log\Writer\Stream($logOptions->log->writerParams->stream);
+        $filter = new Laminas\Log\Filter\Priority($logOptions->log->filterParams->priority, $logOptions->log->filterParams->operator);
+        $writer->addFilter($filter);
+
+        $logger = new Laminas\Log\Logger();
+        $logger->addWriter($writer);
 
         return $logger;
     }
@@ -181,7 +184,7 @@ abstract class ConfiguratorBase
     public function getLoggerObject(?string $loggerName = null) : ?Logger
     {
             if ($loggerName === null) {
-                $loggerName = "logger." . $this->module;
+                $loggerName = "logger." . $this->accio;
             } else $loggerName = "logger.$loggerName";
 
             if (!$this->serviceManager->has($loggerName))
@@ -238,10 +241,10 @@ abstract class ConfiguratorBase
             /** @var cachePlugin $classPlugin */
             $this->cache = new $classPlugin([$cnx], $dbIndex);
         } catch (cacheDriverError $e) {
-            $this->getLoggerObject()->error(__CLASS__ . " Cache driver error: " . $e->getMessage());
+            $this->getLoggerObject()->err(__CLASS__ . " Cache driver error: " . $e->getMessage());
             return new dummyPlugin();
         } catch (Exception $e) {
-            $this->getLoggerObject()->error(__CLASS__ . " Cache general error: " . $e->getMessage());
+            $this->getLoggerObject()->err(__CLASS__ . " Cache general error: " . $e->getMessage());
             return new dummyPlugin();
         }
 
@@ -263,17 +266,17 @@ abstract class ConfiguratorBase
 
         $classPlugin = "\\gcf\\tasks\\$type" . "Plugin";
         if (!class_exists($classPlugin)) {
-            $this->getLoggerObject()->error("El driver $classPlugin no existeix!");
+            $this->getLoggerObject()->err("El driver $classPlugin no existeix!");
             return null;
         }
         try {
             /** @var taskPlugin $classPlugin */
             $this->jobExecutor = new $classPlugin(["$host:$port"]);
         } catch (errorJobServer $e) {
-            $this->getLoggerObject()->error(__CLASS__ . "Driver error: " . $e->getMessage());
+            $this->getLoggerObject()->err(__CLASS__ . "Driver error: " . $e->getMessage());
             return null;
         } catch (Exception $e) {
-            $this->getLoggerObject()->error(__CLASS__ . ": " . $e->getMessage());
+            $this->getLoggerObject()->err(__CLASS__ . ": " . $e->getMessage());
             return null;
         }
 
@@ -289,4 +292,6 @@ abstract class ConfiguratorBase
     {
         return ConnectionPool::getInstance($dbName);
     }
+
+    abstract public function InitPermissions(int $userId, string $moduleName) : void;
 }

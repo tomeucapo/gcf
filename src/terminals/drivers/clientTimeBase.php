@@ -24,7 +24,7 @@ abstract class clientTimeBase
       protected $lastError;
 
       protected $sk, $srv_ip, $buff, $blockSnd, $listResponses;
-      public array $campsRes = [];
+      public $campsRes;
 
     /**
      * Last response of communications from terminal
@@ -75,9 +75,9 @@ abstract class clientTimeBase
      * @param string $type Type of command
      * @param string $cmd Command name
      * @param mixed $l_args Argument list of command
-     * @return int
+     * @return mixed
      */
-      abstract public function sendCommand(string $type, string $cmd, ?array $l_args=null) : int;
+      abstract public function sendCommand($type, $cmd, $l_args=null);
 
     /**
      * Clear previous commands block
