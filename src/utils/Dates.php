@@ -12,6 +12,27 @@ class Dates
 {
     private static array $months = [];
 
+    private function AnchoredDates(DateTime $start, DateTime $end): array
+    {
+        $start = clone $start;
+        $end = clone $end;
+
+        $out = [];
+        $out[] = clone $start;
+
+        $startYear = (int)$start->format('Y');
+        $endYear   = (int)$end->format('Y');
+
+        for ($y = $startYear + 1; $y <= $endYear; $y++) {
+            $d = (new DateTime())->setDate($y, 1, 1)->setTime(0,0,0);
+            if ($d->getTimestamp() <= $end->getTimestamp()) {
+                $out[] = $d;
+            }
+        }
+
+        return $out;
+    }
+
     public static function GetMonths() : array
     {
         if (!empty(self::$months))
