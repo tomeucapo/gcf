@@ -19,7 +19,7 @@ class baseDadesTest extends TestCase
     protected function setUp() : void
     {
         try {
-            $this->db = new DatabaseConnector("localhost:personal_devel.fdb", "tserver", "ts3rv3r", ConnectionMode::NORMAL, "firebird", "SISTEMES");
+            $this->db = new DatabaseConnector("localhost:personal_devel.fdb", "", "", ConnectionMode::NORMAL, "firebird", "SISTEMES");
 
             $redisConn = new \stdClass();
             $redisConn->host = "127.0.0.1";

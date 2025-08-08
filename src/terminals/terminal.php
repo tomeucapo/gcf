@@ -1,13 +1,12 @@
 <?php
   /****************************************************************************************
     clienttime.php
-    Classe per gestionar la comunicació amb les terminals que empra la classe clientTime.
+    Classe per gestionar la comunicaciÃ³ amb les terminals que empra la classe clientTime.
 
     Created......: 19/04/2007
     Last modified: 06/10/2012
-    Author.......: Tomeu Capó Capó
-
-    Alcúdia Marítima S.A. 2002/12 (C)
+    Author.......: Tomeu CapÃ³ CapÃ³
+    
   *****************************************************************************************/
 
 namespace gcf\terminals;
@@ -62,7 +61,7 @@ class terminal
       }
 
     /**
-     * Mètode que inicialitza la connexió al terminal
+     * MÃ©tode que inicialitza la connexiÃ³ al terminal
      */
       public function connect()
       {
