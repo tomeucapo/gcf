@@ -72,7 +72,7 @@ class Environment
             $configParameters = $configObj->fromFile($cfgFile);
             $this->config = new Config\Config($configParameters);
         } catch(Config\Exception\RuntimeException $e) {
-            throw new \Exception("No puc llegir la configuracio: ".$e->getMessage());
+            throw new \Exception("No puc llegir el fitxer de configuració: ".$e->getMessage());
         }
     }
 

@@ -14,6 +14,7 @@
 namespace gcf\terminals\drivers;
 
 use DOMDocument;
+use DOMException;
 use DOMNamedNodeMap;
 use DOMNode;
 use Exception;
@@ -27,34 +28,24 @@ class clientTimecp6000 extends clientTimeBase
     const LIST_ROOT = 0;
     const FIELD_ROOT = 1;
 
-    public $campsRes;
-    private $preAuth;
-    private $urlBase, $user, $passwd;
-    private $id, $command;
-
     /**
-     * @var DOMNode
+     * @var bool Habilita/deshabilita la pre-autenticacio abans de cada peticio
      */
-    private $rootXML;
+    private bool $preAuth = false;
 
-    /**
-     * @var Client
-     */
-    private $httpClient;
+    private string $urlBase, $user, $passwd;
+    private string $id, $command;
 
-    /**
-     * @var DOMDocument
-     */
-    private $domRq;
+    private DOMNode $rootXML;
+    private Client $httpClient;
+    private DOMDocument $domRq;
 
-    /**
-     * @var array
-     */
-    private $listRequests;
+    private array $listRequests;
 
     // Taules de conversions entre noms de camps i valors de CP6000 a CP5000
 
-    private static $cnvCmds = array("getconfig" =>
+    private static array $cnvCmds = [
+        "getconfig" =>
         ["biomode" => "fingerprint_punch_mode",
             "societyname" => "societycode",
             "language" => "language",
@@ -76,61 +67,68 @@ class clientTimecp6000 extends clientTimeBase
             "f4key" => "keyboard_F4key"
         ],
         "getalltransactions" =>
-            array("id" => "personal_code",
+            ["id" => "personal_code",
                 "rn" => "reader_number",
                 "incid" => "incidence_code",
                 "type" => "transaction_type",
-                "mode" => "source"),
+                "mode" => "source"],
         "getnewtransactions" =>
-            array("id" => "personal_code",
+            ["id" => "personal_code",
                 "rn" => "reader_number",
                 "incid" => "incidence_code",
                 "type" => "transaction_type",
-                "mode" => "source"));
+                "mode" => "source"]
+    ];
 
-    private static $cnvValues = array("type" =>
-        array("T" => "attendance",
+    private static array $cnvValues = [
+        "type" => [
+            "T" => "attendance",
             "A" => "access",
             "P" => "production",
-            "B" => "workingtimebeginning"),
-        "mode" =>
-            array("F" => "fingerprintreader",
-                "K" => "keyboard",
-                "C" => "cardreader"));
+            "B" => "workingtimebeginning"
+        ],
+        "mode" => [
+            "F" => "fingerprintreader",
+            "K" => "keyboard",
+            "C" => "cardreader"
+        ]
+    ];
 
-    private static $cnvFormat = array("incid" => "%06d",
-        "id" => "%04d");
+    private static array $cnvFormat = [
+        "incid" => "%06d",
+        "id" => "%04d"
+    ];
 
     // Equivalencia de les comandes de CP5000 a crides REST del CP6000
 
-    private static $L_FUNCTIONS = array("systeminfo" => array("sysinfo", Request::METHOD_GET),
-        "gettime" => array("clock", Request::METHOD_GET),
-        "settime" => array("clock", Request::METHOD_PUT),
-        "getconfig" => array("config", Request::METHOD_GET),
-        "sendincidences" => array("incidences", Request::METHOD_POST),
-        "deleteincidences" => array("incidences", Request::METHOD_DELETE),
-        "getnewtransactions" => array("transactions/new", Request::METHOD_GET),
-        "getalltransactions" => array("transactions", Request::METHOD_GET),
-        "deletetransactions" => array("transactions", Request::METHOD_DELETE),
-        "biogetfingerprints" => array("fingerprints", Request::METHOD_GET),
-        "biosendfingerprints" => array("fingerprints", Request::METHOD_POST),
-        "biodeleteusers" => array("fingerprints", Request::METHOD_DELETE),
-        "biodeleteallusers" => array("fingerprints", Request::METHOD_DELETE)
-    );
+    private static array $L_FUNCTIONS = [
+        "systeminfo"         => ["sysinfo", Request::METHOD_GET],
+        "gettime"            => ["clock", Request::METHOD_GET],
+        "settime"            => ["clock", Request::METHOD_PUT],
+        "getconfig"          => ["config", Request::METHOD_GET],
+        "sendincidences"     => ["incidences", Request::METHOD_POST],
+        "deleteincidences"   => ["incidences", Request::METHOD_DELETE],
+        "getnewtransactions" => ["transactions/new", Request::METHOD_GET],
+        "getalltransactions" => ["transactions", Request::METHOD_GET],
+        "deletetransactions" => ["transactions", Request::METHOD_DELETE],
+        "biogetfingerprints" => ["fingerprints", Request::METHOD_GET],
+        "biosendfingerprints"=> ["fingerprints", Request::METHOD_POST],
+        "biodeleteusers"     => ["fingerprints", Request::METHOD_DELETE],
+        "biodeleteallusers"  => ["fingerprints", Request::METHOD_DELETE]
+    ];
 
-    private static $L_ERRCODES = array(1 => "OPERATION_FAILED",
-        "BAD_ARGUMENTS",
-        "OPERATION_NOT_PERFORM",
-        "OUT_OF_MEMORY");
-
-
+    private static array $L_ERRCODES = [
+        1 => "OPERATION_FAILED",
+            "BAD_ARGUMENTS",
+            "OPERATION_NOT_PERFORM",
+            "OUT_OF_MEMORY"];
 
     /**
      * clientTimeCP6000 constructor.
-     * @param string $srv_ip Server Time IP address
-     * @param $srv_port
-     * @param string $user
-     * @param string $passwd
+     * @param string|null $srv_ip Server Time IP address
+     * @param string|null $srv_port
+     * @param string|null $user
+     * @param string|null $passwd
      */
     public function __construct(?string $srv_ip=null, ?string $srv_port=null, ?string $user = '', ?string $passwd = '')
     {
@@ -146,40 +144,37 @@ class clientTimecp6000 extends clientTimeBase
         $this->listResponses = [];
         $this->listRequests = [];
 
-        // Habilita/deshabilita la pre-autenticacio abans de cada peticio
-        $this->preAuth = false;
-
         $this->httpClient = new Client();
         $this->initRequest();
     }
 
-    private function initRequest()
+    private function initRequest() : void
     {
         $this->domRq = new DOMDocument('1.0', 'ISO-8859-1');
         $this->domRq->formatOutput = true;
         $this->rootXML = $this->domRq->appendChild($this->domRq->createElement("request"));
     }
 
-    private function auth()
+    private function auth() : void
     {
-        if (!empty($this->user) && !empty($this->passwd))
-            $this->httpClient->setOptions(array("httpauth" => "{$this->user}:{$this->passwd}",
-                "httpauthtype" => HTTP_AUTH_DIGEST));
+        if (empty($this->user) && empty($this->passwd))
+            return;
+
+        $this->httpClient->setAuth($this->user, $this->passwd, Client::AUTH_DIGEST);
     }
 
-    public function open()
+    public function open() : void
     {
-        //$this->auth();
     }
 
     /**
-     * @param $cmd
-     * @param string $xml
-     * @param string $idUrl
+     * @param string $cmd
+     * @param string|null $xml
+     * @param string|null $idUrl
      * @throws responseError
      * @throws Exception
      */
-    private function sendRequest($cmd, $xml = "", $idUrl = "")
+    private function sendRequest(string $cmd, ?string $xml = "", ?string $idUrl = "") : void
     {
         $resource = clientTimeCP6000::$L_FUNCTIONS[$cmd][0];
         $method = clientTimeCP6000::$L_FUNCTIONS[$cmd][1];
@@ -225,7 +220,10 @@ class clientTimecp6000 extends clientTimeBase
         $this->buff = $resBody;
     }
 
-    private function mountRequest(DOMNode $root, $l_args)
+    /**
+     * @throws DOMException
+     */
+    private function mountRequest(DOMNode $root, $l_args) : void
     {
         if (!is_array($l_args))
             return;
@@ -243,18 +241,21 @@ class clientTimecp6000 extends clientTimeBase
     /**
      * @param string $type
      * @param string $cmd
-     * @param null $l_args
-     * @return mixed
+     * @param array|null $l_args
+     * @return int
+     * @throws DOMException
      * @throws sendRequestError
      */
-    public function sendCommand($type, $cmd, $l_args = null)
+    public function sendCommand(string $type, string $cmd, ?array $l_args = null) : int
     {
-        if (strlen($cmd) == 0) return null;
+        if (empty($cmd))
+            throw new Exception("Unexpected command");
 
         // Si es una comanda de servidor en aquest cas l'obviam
         // i si es la comanda de connexio ens guardam la IP i el port
 
-        if ($type == "SERVER") {
+        if ($type == "SERVER")
+        {
             if ($cmd == "connectnetwork")
                 $this->urlBase = "http://" . $l_args["ip"] . ":" . $l_args["port"];
 
@@ -297,10 +298,10 @@ class clientTimecp6000 extends clientTimeBase
     }
 
     /**********************************************************************
-     * M�todes per enviar blocs de comandes al servidor
+     * Metodes per enviar blocs de comandes al servidor
      **********************************************************************/
 
-    public function clearCommandsBlock()
+    public function clearCommandsBlock() : void
     {
         //$this->domRq->removeChild($this->rootXML);
         //$this->rootXML = $this->domRq->appendChild($this->domRq->createElement("list"));
@@ -418,7 +419,7 @@ class clientTimecp6000 extends clientTimeBase
      * @return array
      */
 
-    private function convertFields($camps, $last = false, $subfield = null): array
+    private function convertFields(array $camps, bool $last = false, $subfield = null): array
     {
         if (!array_key_exists($this->command, clientTimeCP6000::$cnvCmds))
             return $camps;

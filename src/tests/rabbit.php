@@ -1,7 +1,7 @@
 <?php
 
 use gcf\MQRPCClient;
-use Laminas\Json\Json;
+use gcf\utils\JsonHelper;
 
 require_once "../init.php";
 
@@ -22,7 +22,7 @@ $workload = [
 ];
 
 $client = new MQRPCClient("afexvm4.afexservicios.net", 5672, "personal", "P3rs0n4l.", "A3_SERVICE_QUEUE");
-$response = $client->call(Json::encode($workload));
+$response = $client->call(JsonHelper::encode($workload));
 print_r($response);
 
 /*

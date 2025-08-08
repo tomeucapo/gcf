@@ -15,7 +15,6 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/laminas/laminas-escaper" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/laminas/laminas-eventmanager" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/laminas/laminas-http" />
-      <excludeFolder url="file://$MODULE_DIR$/vendor/laminas/laminas-json" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/laminas/laminas-loader" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/laminas/laminas-servicemanager" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/laminas/laminas-session" />

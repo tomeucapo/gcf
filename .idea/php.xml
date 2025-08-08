@@ -61,7 +61,6 @@
       <path value="$PROJECT_DIR$/vendor/sebastian/lines-of-code" />
       <path value="$PROJECT_DIR$/vendor/laminas/laminas-validator" />
       <path value="$PROJECT_DIR$/vendor/sebastian/object-enumerator" />
-      <path value="$PROJECT_DIR$/vendor/laminas/laminas-json" />
       <path value="$PROJECT_DIR$/vendor/sebastian/comparator" />
       <path value="$PROJECT_DIR$/vendor/laminas/laminas-session" />
       <path value="$PROJECT_DIR$/vendor/sebastian/code-unit" />

@@ -17,6 +17,7 @@ use gcf\tasks\taskPlugin;
 use gcf\web\templates\templateEngine;
 use Laminas;
 use Laminas\Config\Config;
+use Monolog\Handler\FilterHandler;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Laminas\ServiceManager\ServiceManager;
@@ -102,7 +103,7 @@ abstract class ConfiguratorBase
         $logOptions = $this->config->logging->$loggerName;
 
         $logger = new Logger($loggerName);
-        $logger->pushHandler(new StreamHandler($logOptions->log->writerParams->stream, $logOptions->log->filterParams->priority));
+        $logger->pushHandler(new StreamHandler($logOptions->log->stream->file, $logOptions->log->stream->priority));
 
         return $logger;
     }
