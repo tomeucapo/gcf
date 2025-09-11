@@ -56,7 +56,7 @@ class Connector extends dataBaseConn
             if (str_contains($error, "Your user name and password are not defined"))
                 throw new errorDatabaseAutentication("Error d'autenticació: ".$error);
 
-            throw new errorDatabaseConnection("Error al connectar a $this->cadConn: $error");
+            throw new errorDatabaseConnection("Error al connectar a {$this->props->cadConn}: $error");
         }
     }
 
