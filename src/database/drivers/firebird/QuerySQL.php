@@ -52,9 +52,9 @@ class QuerySQL extends queryBase
              $this->rowActual = 0;
 
              // Si existeix una transaccio iniciada, aleshores executam aquesta sentencia dins la TX
-          $cnx = $this->hndTrans ?? $this->connDb;
+             $cnx = $this->hndTrans ?? $this->connDb;
 
-          if($this->result !== null && gettype($this->result) === "resource")
+            if($this->result !== null && gettype($this->result) === "resource")
             {
                   @ibase_free_result($this->result);
             }
@@ -63,6 +63,8 @@ class QuerySQL extends queryBase
                  $this->result = @ibase_query($cnx, $this->query, $this->blobID);             
              else
                  $this->result = @ibase_query($cnx, $this->query);
+
+             @ibase_commit($cnx);
 
              if ($this->result === false)
              {
@@ -218,10 +220,10 @@ class QuerySQL extends queryBase
 
       public function Close() : void
       {
-            if($this->result !== null && gettype($this->result) === "resource")
-            {
-                @ibase_free_result($this->result);
-            }
+            //if($this->result !== null && gettype($this->result) === "resource")
+            //{
+            @ibase_free_result($this->result);
+            //}
                 
             $this->myEof = false;                                      
             $this->rows=-1;

@@ -7,7 +7,7 @@ use gcf\database\DatabaseConnector;
 use gcf\database\SQLQuery;
 use gcf\database\drivers\errorQuerySQL;
 use gcf\database\errorDriverDB;
-use Laminas\Log\Logger;
+use Monolog\Logger;
 
 /**
  * Class taulaBD
@@ -182,7 +182,7 @@ abstract class DataMapper
             $valorPK = $ids;
             if ($this->tipusPK == 'string')
                 $valorPK = "'$valorPK'";
-            $cond = "{$this->primaryKey} = $valorPK";
+            $cond = "$this->primaryKey = $valorPK";
         }
 
         return $cond;
@@ -203,12 +203,12 @@ abstract class DataMapper
     }
 
     /**
-     * @return bool Returns false it fails, true otherwise
      * @throws errorQuerySQL When final SQL statement fails
      * @throws noDataFound When clientType is JSCRIPT and dades_xml is empty
      * @throws errorDriverDB
+     * @throws Exception
      */
-    public function Nou()
+    public function Nou() : void
     {
         if ($this->useCommonTransact)
             $cons = $this->commonQuery;
@@ -241,8 +241,6 @@ abstract class DataMapper
 
         if (!$this->useCommonTransact)
             $cons->tanca_consulta();
-
-        return true;
     }
 
     /**
@@ -253,14 +251,14 @@ abstract class DataMapper
      * @throws errorQuerySQL
      * @throws noDataFound
      */
-    public function Modifica($id) : bool
+    public function Modifica(mixed $id) : bool
     {
         // Sets where sentence to PK condition
         $this->converter->Where($this->condPrimaryKey($id));
 
         if (empty($this->camps))
         {
-            $this->logger?->debug("[" . __CLASS__ . "::" . __METHOD__ . "] {$this->nomTaula} No hi ha dades d'entrada a cap camp de la taula");
+            $this->logger?->debug("[" . __CLASS__ . "::" . __METHOD__ . "] $this->nomTaula No hi ha dades d'entrada a cap camp de la taula");
             return false;
         }
         $this->lastQuery = $this->converter->ArrayToSQL(ConverterType::SQLUpdate, $this->camps);
@@ -320,20 +318,17 @@ abstract class DataMapper
 
     /**
      * Carrega un o un conjunt de registres, emprant o bé la PK per cercar o bé una condició.
-     * @param string $id Especifica la clau primaria
+     * @param string|array|null $id Especifica la clau primaria
      * @param string $cond Es un condicional de tipus SQL
      * @param string $orderBy Ordre de la select DESC o ASC
-     * @return bool Torna true si ha anat bé o false si no, aquest metode actualment o bé torna true o torna una excepció
      * @throws errorQuerySQL Error de nivell de SQL
      * @throws noDataFound Si no ha trobat cap registre
      * @throws noPrimaryKey Si no ha pogut fer el condicional en base de la PK.
      * @throws errorDriverDB
      */
-    public function Carrega($id = '', $cond = '', $orderBy = '')
+    public function Carrega(string|array|null $id = null, string $cond = '', string $orderBy = '') : void
     {
-        $cons = new SQLQuery($this->db);
-
-        if (!$cond && $id)
+        if ($cond === '' && $id !== null)
         {
             try {
                 $cond = $this->condPrimaryKey($id);
@@ -341,12 +336,13 @@ abstract class DataMapper
                 $this->escriuLog($e->getMessage());
                 throw $e;
             }
-            $cond = "where " . $cond;
-        } else if ($cond)
-            $cond = "where " . $cond;
+            $cond = "WHERE " . $cond;
+        } elseif ($cond !== '')
+            $cond = "WHERE " . $cond;
 
-        $query = "select * from {$this->nomTaula} " . $cond . ' ' . $orderBy;
+        $query = "SELECT * FROM $this->nomTaula $cond $orderBy";
 
+        $cons = new SQLQuery($this->db);
         try {
             if ($this->autoCommit) $cons->ferCommit();
             $cons->fer_consulta($query, true);
@@ -379,9 +375,7 @@ abstract class DataMapper
         	}
 		}
   	    $this->lastQuery = $query;
-        $this->result = new ResultSet($cons, $this->primaryKey); //, $this->BLOBLoad);
-
-        return true;
+        $this->result = new ResultSet($cons, $this->primaryKey);
     }
 
     /**
@@ -409,14 +403,15 @@ abstract class DataMapper
      * Delete a record from table or delete all records
      * @param $id mixed PK of record
      * @param bool $unRegistre By default, delete only selected record. Otherwise can delete all records if is false.
-     * @return bool
      * @throws noPrimaryKey PK definition problems
      * @throws errorQuerySQL
+     * @throws errorDriverDB
      */
-    public function Borra($id, $unRegistre = true)
+    public function Borra(string|array $id, bool $unRegistre = true) : void
     {
         $where = '';
-        if ($unRegistre) {
+        if ($unRegistre)
+        {
             try {
                 $where = "where " . $this->condPrimaryKey($id);
             } catch (noPrimaryKey $e) {
@@ -430,7 +425,7 @@ abstract class DataMapper
         if ($this->autoCommit)
             $idTrans = $cons->iniciTrans();
 
-        $queryStr = "delete from {$this->nomTaula} " . $where;
+        $queryStr = "delete from $this->nomTaula $where";
         $cons->fer_consulta($queryStr);
         $this->lastQuery = $queryStr;
 
@@ -438,8 +433,6 @@ abstract class DataMapper
             $cons->ferCommit($idTrans);
 
         $cons->tanca_consulta();
-
-        return true;
     }
 
     /**
@@ -467,7 +460,7 @@ abstract class DataMapper
             $where = "where " . $where;
 
         $cons = new SQLQuery($this->db);
-        $cons->fer_consulta("select extract(year from $camp_data) from {$this->nomTaula} $where group by 1;");
+        $cons->fer_consulta("select extract(year from $camp_data) from $this->nomTaula $where group by 1;");
 
         while (!$cons->Eof())
         {

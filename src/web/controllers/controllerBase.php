@@ -5,13 +5,13 @@ namespace gcf\web\controllers;
 use gcf\ConfiguratorBase;
 use gcf\database\DatabaseConnector;
 use Laminas\Config\Config;
-use Laminas\Log\Logger;
+use Monolog\Logger;
 use stdClass;
 /**
  * Class controllerBase
  *
  * This class defines controller base class. Its basic class that able to create new controllers for application.
- * This clsas not support views only for basic controller like API controllers.
+ * This class not support views only for basic controller like API controllers.
  * Provides database connection context if is needed, logging context, application configuration context and basic
  * filter input class that content incoming data from client.
  */

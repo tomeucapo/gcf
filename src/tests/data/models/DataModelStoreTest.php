@@ -36,7 +36,7 @@ class DataModelStoreTest extends TestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testInsert() : int
     {
@@ -53,6 +53,7 @@ class DataModelStoreTest extends TestCase
      * @depends testInsert
      * @param int $id
      * @return int
+     * @throws Exception
      */
     public function testGet(int $id) : int
     {
@@ -69,6 +70,7 @@ class DataModelStoreTest extends TestCase
      * @depends testGet
      * @param int $id
      * @return int
+     * @throws Exception
      */
 
     public function testUpdate(int $id) : int
@@ -89,6 +91,7 @@ class DataModelStoreTest extends TestCase
      * @depends testUpdate
      * @param int $id
      * @return void
+     * @throws Exception
      */
 
     public function testDelete(int $id) : void
@@ -98,7 +101,7 @@ class DataModelStoreTest extends TestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function testDescribe() : void
     {
@@ -126,6 +129,7 @@ class DataModelStoreTest extends TestCase
 
     /**
      * @return void
+     * @throws Exception
      */
     public function testDrop() : void
     {

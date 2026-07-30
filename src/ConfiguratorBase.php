@@ -17,8 +17,10 @@ use gcf\tasks\taskPlugin;
 use gcf\web\templates\templateEngine;
 use Laminas;
 use Laminas\Config\Config;
-use Laminas\Log\Logger;
 use Laminas\ServiceManager\ServiceManager;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Monolog\Processor\IntrospectionProcessor;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use stdClass;
@@ -97,16 +99,14 @@ abstract class ConfiguratorBase
         }
     }
 
-    private function InitLogger(string $loggerName) : Laminas\Log\Logger
+    private function InitLogger(string $loggerName) : Logger
     {
         $logOptions = $this->config->logging->$loggerName;
 
-        $writer = new Laminas\Log\Writer\Stream($logOptions->log->writerParams->stream);
-        $filter = new Laminas\Log\Filter\Priority($logOptions->log->filterParams->priority, $logOptions->log->filterParams->operator);
-        $writer->addFilter($filter);
-
-        $logger = new Laminas\Log\Logger();
-        $logger->addWriter($writer);
+        $logger = new Logger($loggerName);
+        $handler = new StreamHandler($logOptions->log->writerParams->stream, $logOptions->log->filterParams->priority);
+        $logger->pushHandler($handler);
+        $logger->pushProcessor(new IntrospectionProcessor());
 
         return $logger;
     }
@@ -241,10 +241,10 @@ abstract class ConfiguratorBase
             /** @var cachePlugin $classPlugin */
             $this->cache = new $classPlugin([$cnx], $dbIndex);
         } catch (cacheDriverError $e) {
-            $this->getLoggerObject()->err(__CLASS__ . " Cache driver error: " . $e->getMessage());
+            $this->getLoggerObject()->error(__CLASS__ . " Cache driver error: " . $e->getMessage());
             return new dummyPlugin();
         } catch (Exception $e) {
-            $this->getLoggerObject()->err(__CLASS__ . " Cache general error: " . $e->getMessage());
+            $this->getLoggerObject()->error(__CLASS__ . " Cache general error: " . $e->getMessage());
             return new dummyPlugin();
         }
 
@@ -266,17 +266,17 @@ abstract class ConfiguratorBase
 
         $classPlugin = "\\gcf\\tasks\\$type" . "Plugin";
         if (!class_exists($classPlugin)) {
-            $this->getLoggerObject()->err("El driver $classPlugin no existeix!");
+            $this->getLoggerObject()->error("El driver $classPlugin no existeix!");
             return null;
         }
         try {
             /** @var taskPlugin $classPlugin */
             $this->jobExecutor = new $classPlugin(["$host:$port"]);
         } catch (errorJobServer $e) {
-            $this->getLoggerObject()->err(__CLASS__ . "Driver error: " . $e->getMessage());
+            $this->getLoggerObject()->error(__CLASS__ . "Driver error: " . $e->getMessage());
             return null;
         } catch (Exception $e) {
-            $this->getLoggerObject()->err(__CLASS__ . ": " . $e->getMessage());
+            $this->getLoggerObject()->error(__CLASS__ . ": " . $e->getMessage());
             return null;
         }
 
