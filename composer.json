@@ -2,55 +2,59 @@
   "name": "phiconsultors/gcf",
   "description": "General Corporate Framework",
   "type": "library",
-    "require": {
-        "php": ">=8.2",
-        "ext-iconv": "*",
-        "ext-gearman": "*",
-        "ext-interbase": "*",
-        "ext-soap": "*",
-        "ext-mbstring": "*",
-        "ext-json": "*",
-        "ext-sockets": "*",
-        "ext-sqlite3": "*",
-        "ext-dom": "*",
-        "ext-pdo": "*",
-        "ext-zip": "*",
-        "ext-libxml": "*",
-        "ext-ldap": "*",
-        "ext-redis" : "*",
-        "ext-bcmath": "*",
-        "ext-intl": "*",
-        "phpoffice/phpspreadsheet": "^2.2",
-        "mpdf/mpdf": "8.2.*",
-        "twig/twig": "^3.0",
-        "laminas/laminas-config": "3.*",
-        "laminas/laminas-log": "2.*",
-        "laminas/laminas-session": "2.*",
-        "laminas/laminas-http": "2.*",
-        "laminas/laminas-json": "3.*",
-        "php-amqplib/php-amqplib": "2.*",
-        "textcontrol/textcontrol-reportingcloud" : "^4.0",
-        "twig/intl-extra": "^3.7"
-    },
-    
-	"require-dev": {
-        "phpunit/phpunit": "11.*"
-    },
-	
-	"authors": [
-		{
-			"name": "Tomeu Capo",
-			"email": "tomeucapo@gmail.com"
-		}
-	],
-	
-	"license": "MIT",
-	
-	"autoload": {
-		"psr-4": {
-			"gcf\\": "src/"
-		}
-	},
-	
-	"minimum-stability": "stable"
+  "require": {
+    "php": ">=8.5.4 <9.0",
+    "ext-iconv": "*",
+    "ext-gearman": "*",
+    "ext-interbase": "*",
+    "ext-soap": "*",
+    "ext-mbstring": "*",
+    "ext-json": "*",
+    "ext-sockets": "*",
+    "ext-sqlite3": "*",
+    "ext-dom": "*",
+    "ext-pdo": "*",
+    "ext-zip": "*",
+    "ext-libxml": "*",
+    "ext-ldap": "*",
+    "ext-redis": "*",
+    "ext-bcmath": "*",
+    "ext-intl": "*",
+    "phpoffice/phpspreadsheet": "^2.2",
+    "mpdf/mpdf": "8.2.*",
+    "twig/twig": "^3.0",
+    "laminas/laminas-config": "3.*",
+    "laminas/laminas-log": "2.*",
+    "laminas/laminas-session": "2.*",
+    "laminas/laminas-http": "2.*",
+    "laminas/laminas-json": "3.*",
+    "php-amqplib/php-amqplib": "2.*",
+    "textcontrol/textcontrol-reportingcloud": "^4.0",
+    "twig/intl-extra": "^3.7",
+    "monolog/monolog": "^3.3",
+    "guzzlehttp/guzzle": "^7.8",
+    "symfony/http-foundation": "^7.0",
+    "symfony/yaml": "^7.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "11.*"
+  },
+  "config": {
+    "platform": {
+      "php": "8.5.4"
+    }
+  },
+  "authors": [
+    {
+      "name": "Tomeu Capo",
+      "email": "tomeucapo@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "gcf\\": "src/"
+    }
+  },
+  "minimum-stability": "stable"
 }
