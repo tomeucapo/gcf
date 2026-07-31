@@ -208,7 +208,7 @@ abstract class DataMapper
      * @throws errorDriverDB
      * @throws Exception
      */
-    public function Nou() : void
+    public function Nou() : int|null
     {
         if ($this->useCommonTransact)
             $cons = $this->commonQuery;
@@ -241,6 +241,8 @@ abstract class DataMapper
 
         if (!$this->useCommonTransact)
             $cons->tanca_consulta();
+
+        return null;
     }
 
     /**
