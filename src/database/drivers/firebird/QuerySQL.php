@@ -219,11 +219,13 @@ class QuerySQL extends queryBase
 
       public function Close() : void
       {
-            if(is_resource($this->connDb))
-                ibase_commit($this->connDb);
-
             if(is_resource($this->result))
+            {
+                if(is_resource($this->connDb))
+                    @ibase_commit($this->connDb);
+
                 ibase_free_result($this->result);
+            }
 
             $this->myEof = false;                                      
             $this->rows=-1;
