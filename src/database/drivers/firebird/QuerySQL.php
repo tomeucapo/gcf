@@ -54,17 +54,16 @@ class QuerySQL extends queryBase
              // Si existeix una transaccio iniciada, aleshores executam aquesta sentencia dins la TX
              $cnx = $this->hndTrans ?? $this->connDb;
 
-            if($this->result !== null && gettype($this->result) === "resource")
-            {
+             if($this->result !== null && gettype($this->result) === "resource")
+             {
                   @ibase_free_result($this->result);
-            }
+                  @ibase_commit($cnx);
+             }
 
              if ($this->blobID)
                  $this->result = @ibase_query($cnx, $this->query, $this->blobID);             
              else
                  $this->result = @ibase_query($cnx, $this->query);
-
-             @ibase_commit($cnx);
 
              if ($this->result === false)
              {
