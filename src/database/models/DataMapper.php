@@ -321,16 +321,16 @@ abstract class DataMapper
     /**
      * Carrega un o un conjunt de registres, emprant o bé la PK per cercar o bé una condició.
      * @param string|array|null $id Especifica la clau primaria
-     * @param string $cond Es un condicional de tipus SQL
-     * @param string $orderBy Ordre de la select DESC o ASC
+     * @param ?string $cond Es un condicional de tipus SQL
+     * @param ?string $orderBy Ordre de la select DESC o ASC
      * @throws errorQuerySQL Error de nivell de SQL
      * @throws noDataFound Si no ha trobat cap registre
      * @throws noPrimaryKey Si no ha pogut fer el condicional en base de la PK.
      * @throws errorDriverDB
      */
-    public function Carrega(string|array|null $id = null, string $cond = '', string $orderBy = '') : void
+    public function Carrega(string|array|null $id = null, ?string $cond = '', ?string $orderBy = '') : void
     {
-        if ($cond === '' && $id !== null)
+        if (empty($cond) && $id !== null)
         {
             try {
                 $cond = $this->condPrimaryKey($id);
@@ -339,7 +339,7 @@ abstract class DataMapper
                 throw $e;
             }
             $cond = "WHERE " . $cond;
-        } elseif ($cond !== '')
+        } elseif (!empty($cond))
             $cond = "WHERE " . $cond;
 
         $query = "SELECT * FROM $this->nomTaula $cond $orderBy";
