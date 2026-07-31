@@ -62,7 +62,7 @@ class Connector extends dataBaseConn
 
     public function Close() : void
     {
-        if ($this->connDb)
+        if ($this->connDb !== null)
             @ibase_close($this->connDb);
     }
 
