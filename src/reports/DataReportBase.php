@@ -19,10 +19,10 @@ use stdClass;
 
 abstract class DataReportBase implements DataReport
 {
-    const XML_OUT = 1;
-    const JSON_OUT = 2;
-    const XLS_OUT = 3;
-    const PDF_OUT = 4;
+    const int XML_OUT = 1;
+    const int JSON_OUT = 2;
+    const int XLS_OUT = 3;
+    const int PDF_OUT = 4;
 
     private static array $cellStylesDetails = [
         'font' => [
@@ -61,7 +61,7 @@ abstract class DataReportBase implements DataReport
         private string $orientation;
         private int $pageSize;
 
-        public function __construct(DatabaseConnector $db, $name, cachePlugin $cache=null, $type = self::JSON_OUT)
+        public function __construct(DatabaseConnector $db, $name, ?cachePlugin $cache=null, int $type = self::JSON_OUT)
         {
                $this->title = "";
                $this->name = $name;
