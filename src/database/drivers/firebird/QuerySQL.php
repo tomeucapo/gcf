@@ -219,7 +219,7 @@ class QuerySQL extends queryBase
 
       public function Close() : void
       {
-            if($this->result !== null)
+            if(is_resource($this->result))
             {
                 ibase_free_result($this->result);
             }
