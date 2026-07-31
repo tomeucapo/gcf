@@ -69,9 +69,7 @@ class Record
             $type = $this->getType($property);
             if ($type === "INTEGER")
                 return (int) $this->camps[$property];
-            if ($type === "NUMERIC")
-                return (double) $this->camps[$property];
-            if ($type === "DECIMAL")
+            if ($type === "NUMERIC" || $type === "DECIMAL")
                 return (float) $this->camps[$property];
 
             /*else if ($type === "DATE")
