@@ -330,7 +330,7 @@ abstract class DataMapper
      */
     public function Carrega(string|array|null $id = null, ?string $cond = '', ?string $orderBy = '') : void
     {
-        if (empty($cond) && $id !== null)
+        if (empty($cond) && !empty($id))
         {
             try {
                 $cond = $this->condPrimaryKey($id);
