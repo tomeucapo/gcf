@@ -220,10 +220,10 @@ class QuerySQL extends queryBase
 
       public function Close() : void
       {
-            //if($this->result !== null && gettype($this->result) === "resource")
-            //{
-            @ibase_free_result($this->result);
-            //}
+            if($this->result !== null)
+            {
+                ibase_free_result($this->result);
+            }
                 
             $this->myEof = false;                                      
             $this->rows=-1;
