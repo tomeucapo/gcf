@@ -185,7 +185,7 @@ abstract class webServiceBase implements webservice
                     $xml = new SimpleXMLElement('<results/>');
                     array_walk_recursive($this->result->data, function ($value, $key) use ($xml) {
                                    if($value)
-                                      $xml->addChild($key, utf8_encode($value));
+                                      $xml->addChild($key, $value);
                             });
                     return $xml->asXML();
                 }

@@ -104,7 +104,7 @@ class filtreTaulaBD
 
             if (!$final)
             { 
-                $this->camps =  array_map(function ($value) { return utf8_encode($value); }, $this->query->row); 
+                $this->camps = $this->query->row;
                 $this->query->Skip();
                 if ($id) $this->allibera();
             } else

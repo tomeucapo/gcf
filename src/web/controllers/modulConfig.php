@@ -17,7 +17,7 @@ trait modulConfig
             return $cachedCfg;
 
         $fileConf = file_get_contents($this->configurador->dirs["module_cfgs"] . $name . ".json");
-        $config = Json::decode(utf8_encode($fileConf), Json::TYPE_ARRAY);
+        $config = Json::decode($fileConf, Json::TYPE_ARRAY);
 
         $cache->set("MODULE_CFG:$name", $config, 3600);
 
