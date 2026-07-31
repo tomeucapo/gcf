@@ -47,7 +47,7 @@ class DropDown
      * @param int|null $defaultWidth Default field width
      * @return string
      */
-    public static function select(string $title, string $fieldName, string $changeEvent, array $list, string $selectedValue=null,
+    public static function select(string $title, string $fieldName, string $changeEvent, array $list, ?string $selectedValue=null,
                                   bool $showCode=false, bool $multiple=false, bool $firstEmpty=true, ?int $defaultWidth=null): string
     {
         $strChgEvent = "";
@@ -73,7 +73,7 @@ class DropDown
     }
 
 
-    public static function selectMultiple(string $title, string $fieldName, string $changeEvent, array $list, array $selectedValues=null,
+    public static function selectMultiple(string $title, string $fieldName, string $changeEvent, array $list, ?array $selectedValues=null,
                                   bool $showCode=false, ?int $defaultWidth=null, int $size=8): string
     {
         $strChgEvent = "";
