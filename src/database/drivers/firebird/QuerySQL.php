@@ -54,7 +54,7 @@ class QuerySQL extends queryBase
              // Si existeix una transaccio iniciada, aleshores executam aquesta sentencia dins la TX
              $cnx = $this->hndTrans ?? $this->connDb;
 
-             if($this->result !== null && gettype($this->result) === "resource")
+             if(is_resource($this->result))
              {
                   @ibase_free_result($this->result);
                   //@ibase_commit($cnx);
@@ -219,11 +219,12 @@ class QuerySQL extends queryBase
 
       public function Close() : void
       {
+            if(is_resource($this->connDb))
+                ibase_commit($this->connDb);
+
             if(is_resource($this->result))
-            {
                 ibase_free_result($this->result);
-            }
-                
+
             $this->myEof = false;                                      
             $this->rows=-1;
             $this->rowActual=-1;
