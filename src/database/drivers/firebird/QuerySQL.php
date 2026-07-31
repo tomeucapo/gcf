@@ -57,7 +57,7 @@ class QuerySQL extends queryBase
              if($this->result !== null && gettype($this->result) === "resource")
              {
                   @ibase_free_result($this->result);
-                  @ibase_commit($cnx);
+                  //@ibase_commit($cnx);
              }
 
              if ($this->blobID)
